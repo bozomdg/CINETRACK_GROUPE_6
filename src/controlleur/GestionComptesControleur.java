@@ -58,4 +58,41 @@ public class GestionComptesControleur {
             vue.afficherErreur("Veuillez sélectionner un gestionnaire.");
         }
     }
+
+    public void afficherLogs() {
+        modele.LogGestionnaireDAO logDAO = new modele.LogGestionnaireDAO();
+        List<modele.LogGestionnaire> logs = logDAO.findAll();
+
+        if (logs.isEmpty()) {
+            JOptionPane.showMessageDialog(vue,
+                    "Aucun log d'activité disponible.",
+                    "Logs des Gestionnaires",
+                    JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        String[] cols = {"ID Log", "Action", "Nom d'utilisateur", "ID Gestionnaire", "Date"};
+        javax.swing.table.DefaultTableModel model = new javax.swing.table.DefaultTableModel(cols, 0) {
+            public boolean isCellEditable(int r, int c) { return false; }
+        };
+
+        for (modele.LogGestionnaire log : logs) {
+            model.addRow(new Object[]{
+                    log.getIdLog(),
+                    log.getAction(),
+                    log.getUsernameGestionnaire(),
+                    log.getIdGestionnaire(),
+                    log.getDateAction() != null ? log.getDateAction().toString().substring(0, 19) : ""
+            });
+        }
+
+        JTable tableLogs = new JTable(model);
+        ModernUI.styleTable(tableLogs);
+        JScrollPane scroll = new JScrollPane(tableLogs);
+        scroll.setPreferredSize(new java.awt.Dimension(600, 300));
+
+        JOptionPane.showMessageDialog(vue, scroll,
+                "Historique des actions sur les gestionnaires",
+                JOptionPane.PLAIN_MESSAGE);
+    }
 }

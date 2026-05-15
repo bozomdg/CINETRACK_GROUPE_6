@@ -18,7 +18,7 @@ public class FenetreGestionComptes extends JPanel {
 
     private JTextField champUsername;
     private JPasswordField champPassword;
-    private JButton btnAjouter, btnSupprimer, btnRafraichir;
+    private JButton btnAjouter, btnSupprimer, btnRafraichir, btnLogs;
 
     public FenetreGestionComptes() {
         // Constructeur vide pour respecter MVC
@@ -44,6 +44,25 @@ public class FenetreGestionComptes extends JPanel {
         title.setFont(new Font("Segoe UI", Font.BOLD, 20));
         title.setForeground(ModernUI.TEXT_DARK);
         toolbar.add(title, BorderLayout.WEST);
+
+        // Boutons d'action dans la toolbar
+        JPanel actionsToolbar = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        actionsToolbar.setOpaque(false);
+
+        btnRafraichir = ModernUI.createButton("Rafra\u00EEchir", ModernUI.ACCENT);
+        btnLogs = ModernUI.createButton("Voir Logs", new Color(108, 117, 125));
+        
+        Dimension tDim = new Dimension(130, 36);
+        btnRafraichir.setPreferredSize(tDim);
+        btnLogs.setPreferredSize(tDim);
+
+        btnRafraichir.addActionListener(e -> controleur.chargerDonnees());
+        btnLogs.addActionListener(e -> controleur.afficherLogs());
+
+        actionsToolbar.add(btnRafraichir);
+        actionsToolbar.add(btnLogs);
+        toolbar.add(actionsToolbar, BorderLayout.EAST);
+
         add(toolbar, BorderLayout.NORTH);
 
         // --- Table ---
@@ -102,20 +121,16 @@ public class FenetreGestionComptes extends JPanel {
 
         btnAjouter = ModernUI.createButton("Ajouter", ModernUI.SUCCESS);
         btnSupprimer = ModernUI.createButton("Supprimer", ModernUI.DANGER);
-        btnRafraichir = ModernUI.createButton("Rafra\u00EEchir", ModernUI.ACCENT);
 
-        Dimension bDim = new Dimension(110, 38);
+        Dimension bDim = new Dimension(130, 40);
         btnAjouter.setPreferredSize(bDim);
         btnSupprimer.setPreferredSize(bDim);
-        btnRafraichir.setPreferredSize(bDim);
 
         btnAjouter.addActionListener(e -> controleur.actionAjouter(champUsername.getText(), new String(champPassword.getPassword())));
         btnSupprimer.addActionListener(e -> controleur.actionSupprimer());
-        btnRafraichir.addActionListener(e -> controleur.chargerDonnees());
 
         btnPanel.add(btnAjouter);
         btnPanel.add(btnSupprimer);
-        btnPanel.add(btnRafraichir);
 
         eastPanel.add(btnPanel, BorderLayout.SOUTH);
         add(eastPanel, BorderLayout.EAST);

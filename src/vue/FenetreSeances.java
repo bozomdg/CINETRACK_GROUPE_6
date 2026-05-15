@@ -1,6 +1,7 @@
 package vue;
 
 import controlleur.SeanceControleur;
+import modele.Reservation;
 import modele.Seance;
 
 import javax.swing.*;
@@ -18,8 +19,11 @@ public class FenetreSeances extends JPanel {
     private JTextField champDate;
 
     private JTextField champIdFilm, champIdSalle, champDateSeance, champHeure, champPlaces;
-    private JButton btnAjouter, btnModifier, btnSupprimer;
+    private JButton btnAjouter, btnModifier, btnSupprimer, btnReserver, btnVoirReservations;
     private JLabel countLabel;
+
+    // Champs pour la réservation client
+    private JTextField champNomClient, champPrenomClient, champNbPlaces;
 
     public FenetreSeances() {
         // Constructeur vide pour respecter MVC
@@ -35,6 +39,7 @@ public class FenetreSeances extends JPanel {
         setLayout(new BorderLayout(0, 0));
         setBackground(ModernUI.BG_LIGHT);
 
+        // ===== TOOLBAR (haut) =====
         JPanel toolbar = new JPanel(new BorderLayout(15, 0));
         toolbar.setBackground(Color.WHITE);
         toolbar.setBorder(BorderFactory.createCompoundBorder(
@@ -82,6 +87,7 @@ public class FenetreSeances extends JPanel {
         toolbar.add(right, BorderLayout.EAST);
         add(toolbar, BorderLayout.NORTH);
 
+        // ===== TABLE (centre) =====
         String[] colonnes = {"ID", "Film", "Salle", "Date", "Heure", "Places", "Statut"};
         modeleTable = new DefaultTableModel(colonnes, 0) {
             public boolean isCellEditable(int r, int c) { return false; }
@@ -100,10 +106,12 @@ public class FenetreSeances extends JPanel {
         centerPanel.add(scrollPane, BorderLayout.CENTER);
         add(centerPanel, BorderLayout.CENTER);
 
-        JPanel southPanel = new JPanel(new BorderLayout());
+        // ===== PANNEAU BAS : Formulaire séance + Formulaire réservation =====
+        JPanel southPanel = new JPanel(new BorderLayout(0, 10));
         southPanel.setBackground(ModernUI.BG_LIGHT);
         southPanel.setBorder(new EmptyBorder(0, 20, 20, 20));
 
+        // --- Card 1 : Détails de la séance ---
         JPanel formCard = ModernUI.createCard();
         formCard.setLayout(new BorderLayout());
 
@@ -156,19 +164,70 @@ public class FenetreSeances extends JPanel {
 
         formCard.add(btnPanel, BorderLayout.SOUTH);
 
+        // --- Card 2 : Réservation client ---
+        JPanel reservationCard = ModernUI.createCard();
+        reservationCard.setLayout(new BorderLayout());
+
+        JLabel reservTitle = new JLabel("R\u00e9servation client");
+        reservTitle.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        reservTitle.setForeground(ModernUI.TEXT_DARK);
+        reservTitle.setBorder(new EmptyBorder(0, 0, 15, 0));
+        reservationCard.add(reservTitle, BorderLayout.NORTH);
+
+        JPanel reservFields = new JPanel(new GridLayout(2, 3, 15, 10));
+        reservFields.setOpaque(false);
+
+        champNomClient = ModernUI.createTextField(10);
+        champPrenomClient = ModernUI.createTextField(10);
+        champNbPlaces = ModernUI.createTextField(5);
+
+        reservFields.add(new JLabel("Nom :"));
+        reservFields.add(new JLabel("Pr\u00e9nom :"));
+        reservFields.add(new JLabel("Nb places :"));
+        reservFields.add(champNomClient);
+        reservFields.add(champPrenomClient);
+        reservFields.add(champNbPlaces);
+
+        reservationCard.add(reservFields, BorderLayout.CENTER);
+
+        JPanel reservBtnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
+        reservBtnPanel.setOpaque(false);
+
+        btnReserver = ModernUI.createButton("R\u00e9server", ModernUI.ACCENT);
+        btnVoirReservations = ModernUI.createButton("Voir r\u00e9servations", new Color(108, 117, 125));
+
+        btnReserver.setPreferredSize(new Dimension(140, 38));
+        btnVoirReservations.setPreferredSize(new Dimension(160, 38));
+
+        btnReserver.setEnabled(false);
+        btnVoirReservations.setEnabled(false);
+
+        reservBtnPanel.add(btnReserver);
+        reservBtnPanel.add(btnVoirReservations);
+
+        reservationCard.add(reservBtnPanel, BorderLayout.SOUTH);
+
+        // Assemblage du panneau bas
         southPanel.add(formCard, BorderLayout.NORTH);
+        southPanel.add(reservationCard, BorderLayout.SOUTH);
         add(southPanel, BorderLayout.SOUTH);
 
+        // ===== ECOUTEURS =====
+
+        // Sélection dans le tableau
         table.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 int ligne = table.getSelectedRow();
                 boolean isSelected = ligne >= 0;
                 btnModifier.setEnabled(isSelected);
                 btnSupprimer.setEnabled(isSelected);
+                btnReserver.setEnabled(isSelected);
+                btnVoirReservations.setEnabled(isSelected);
                 if (isSelected) remplirFormulaire(ligne);
             }
         });
 
+        // Boutons séance
         btnAjouter.addActionListener(e -> controleur.ajouterSeance(
                 champIdFilm.getText(), champIdSalle.getText(),
                 champDateSeance.getText(), champHeure.getText(), champPlaces.getText()));
@@ -191,6 +250,92 @@ public class FenetreSeances extends JPanel {
                 }
             }
         });
+
+        // Bouton réservation : envoie nom, prénom, nb places au contrôleur
+        btnReserver.addActionListener(e -> {
+            int ligne = table.getSelectedRow();
+            if (ligne >= 0) {
+                int idSeance = (int) modeleTable.getValueAt(ligne, 0);
+                controleur.reserverPlaces(idSeance,
+                        champNomClient.getText(), champPrenomClient.getText(),
+                        champNbPlaces.getText());
+                // Vider les champs après réservation
+                champNomClient.setText("");
+                champPrenomClient.setText("");
+                champNbPlaces.setText("");
+            }
+        });
+
+        // Bouton voir les réservations d'une séance
+        btnVoirReservations.addActionListener(e -> {
+            int ligne = table.getSelectedRow();
+            if (ligne >= 0) {
+                int idSeance = (int) modeleTable.getValueAt(ligne, 0);
+                afficherReservationsDialog(idSeance);
+            }
+        });
+    }
+
+    /**
+     * Affiche un dialogue listant les réservations pour une séance sélectionnée.
+     */
+    private void afficherReservationsDialog(int idSeance) {
+        List<Reservation> reservations = controleur.getReservationsParSeance(idSeance);
+
+        if (reservations.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "Aucune r\u00e9servation pour cette s\u00e9ance.",
+                    "R\u00e9servations - S\u00e9ance #" + idSeance,
+                    JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        // Table des réservations
+        String[] cols = {"ID", "Nom", "Pr\u00e9nom", "Places", "Date r\u00e9servation", "Par (r\u00f4le)", "ID Compte"};
+        DefaultTableModel model = new DefaultTableModel(cols, 0) {
+            public boolean isCellEditable(int r, int c) { return false; }
+        };
+
+        for (Reservation r : reservations) {
+            model.addRow(new Object[]{
+                    r.getIdReservation(),
+                    r.getNomClient(),
+                    r.getPrenomClient(),
+                    r.getNbPlaces(),
+                    r.getDateReservation() != null ? r.getDateReservation().toString().substring(0, 16) : "",
+                    r.getRoleCompte(),
+                    r.getIdCompte()
+            });
+        }
+
+        JTable tableReserv = new JTable(model);
+        ModernUI.styleTable(tableReserv);
+        JScrollPane scroll = new JScrollPane(tableReserv);
+        scroll.setPreferredSize(new Dimension(700, 250));
+
+        // Bouton annuler une réservation
+        JButton btnAnnuler = ModernUI.createButton("Annuler la r\u00e9servation s\u00e9lectionn\u00e9e", ModernUI.DANGER);
+        btnAnnuler.addActionListener(ev -> {
+            int row = tableReserv.getSelectedRow();
+            if (row >= 0) {
+                int idRes = (int) model.getValueAt(row, 0);
+                if (ModernUI.showConfirm(this, "Annuler cette r\u00e9servation ?") == JOptionPane.YES_OPTION) {
+                    controleur.annulerReservation(idRes);
+                    // Rafraîchir le dialogue
+                    model.removeRow(row);
+                }
+            } else {
+                ModernUI.showError(this, "S\u00e9lectionnez une r\u00e9servation.");
+            }
+        });
+
+        JPanel panel = new JPanel(new BorderLayout(0, 10));
+        panel.add(scroll, BorderLayout.CENTER);
+        panel.add(btnAnnuler, BorderLayout.SOUTH);
+
+        JOptionPane.showMessageDialog(this, panel,
+                "R\u00e9servations - S\u00e9ance #" + idSeance,
+                JOptionPane.PLAIN_MESSAGE);
     }
 
     public void afficherSeances(List<Seance> seances) {

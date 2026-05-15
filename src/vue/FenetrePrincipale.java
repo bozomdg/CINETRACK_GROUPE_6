@@ -346,4 +346,5 @@ public class FenetrePrincipale extends JFrame {
     public JButton getBtnSeances() { return btnSeances; }
     public JButton getBtnGestionnaires() { return btnGestionnaires; }
     public JButton getBtnQuitter() { return btnQuitter; }
+    public Compte getCompteConnecte() { return compteConnecte; }
 }
