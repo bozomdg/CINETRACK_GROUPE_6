@@ -228,9 +228,10 @@ public class FenetreFilms extends JPanel {
     public void afficherFilms(List<Film> films) {
         modeleTable.setRowCount(0);
         for (Film f : films) {
+            String noteAffichage = f.getNote() > 0 ? String.valueOf(f.getNote()) : "-";
             modeleTable.addRow(new Object[] {
                     f.getIdFilm(), f.getTitre(), f.getGenre(),
-                    f.getDureeFormatee(), f.getNote(), f.getSynopsis()
+                    f.getDureeFormatee(), noteAffichage, f.getSynopsis()
             });
         }
         mettreAJourTitre(films.size());

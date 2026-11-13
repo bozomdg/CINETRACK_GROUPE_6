@@ -10,49 +10,43 @@ import java.util.List;
 
 import connexion.DatabaseConnection;
 import exception.FilmIntrouvable;
-import exception.NoteErreur;
 
-// Toutes les opérations SQL sur la table "films".
- 
+/**
+ * Opérations SQL sur la table "film" (schéma cinetrack).
+ */
 public class FilmDAO {
 
-    
     // LIRE TOUS LES FILMS
-    
     public List<Film> findAll() {
         List<Film> liste = new ArrayList<>();
-        String sql = "SELECT * FROM films ORDER BY titre";
+        String sql = "SELECT id_film, titre, genre, duree, synopsis FROM film ORDER BY id_film";
 
-        
         try (Connection con = DatabaseConnection.getConnection();
              Statement  st  = con.createStatement();
              ResultSet  rs  = st.executeQuery(sql)) {
 
             while (rs.next()) {
-                // On reconstruit un objet Film depuis chaque ligne SQL
                 Film f = new Film(
                     rs.getInt("id_film"),
                     rs.getString("titre"),
                     rs.getString("genre"),
                     rs.getInt("duree"),
-                    rs.getDouble("note"),
+                    0.0,
                     rs.getString("synopsis")
                 );
                 liste.add(f);
             }
 
         } catch (SQLException e) {
-            System.err.println("Erreur findAll films : " + e.getMessage());
+            System.err.println("Erreur findAll film : " + e.getMessage());
         }
 
         return liste;
     }
 
-    
     // LIRE UN FILM PAR ID
-    
     public Film findById(int id) {
-        String sql = "SELECT * FROM films WHERE id_film = ?";
+        String sql = "SELECT id_film, titre, genre, duree, synopsis FROM film WHERE id_film = ?";
 
         try (Connection con = DatabaseConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -66,26 +60,23 @@ public class FilmDAO {
                     rs.getString("titre"),
                     rs.getString("genre"),
                     rs.getInt("duree"),
-                    rs.getDouble("note"),
+                    0.0,
                     rs.getString("synopsis")
                 );
             } else {
-                // Film non trouvé, on lance notre exception métier
                 throw new FilmIntrouvable(id);
             }
 
         } catch (SQLException e) {
-            System.err.println("Erreur findById : " + e.getMessage());
+            System.err.println("Erreur findById film : " + e.getMessage());
             throw new FilmIntrouvable(id);
         }
     }
 
-    
     // RECHERCHER PAR GENRE
-    
     public List<Film> findByGenre(String genre) {
         List<Film> liste = new ArrayList<>();
-        String sql = "SELECT * FROM films WHERE genre = ? ORDER BY titre";
+        String sql = "SELECT id_film, titre, genre, duree, synopsis FROM film WHERE genre = ? ORDER BY id_film";
 
         try (Connection con = DatabaseConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -99,28 +90,21 @@ public class FilmDAO {
                     rs.getString("titre"),
                     rs.getString("genre"),
                     rs.getInt("duree"),
-                    rs.getDouble("note"),
+                    0.0,
                     rs.getString("synopsis")
                 ));
             }
 
         } catch (SQLException e) {
-            System.err.println("Erreur findByGenre : " + e.getMessage());
+            System.err.println("Erreur findByGenre film : " + e.getMessage());
         }
 
         return liste;
     }
 
     // INSÉRER UN FILM
-    
     public boolean insert(Film f) {
-
-        if (f.getNote() < 0 || f.getNote() > 10) {
-            throw new NoteErreur(f.getNote());
-        }
-
-        String sql = "INSERT INTO films (titre, genre, duree, note, synopsis) " +
-                     "VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO film (titre, genre, duree, synopsis) VALUES (?, ?, ?, ?)";
 
         try (Connection con = DatabaseConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -128,8 +112,7 @@ public class FilmDAO {
             ps.setString(1, f.getTitre());
             ps.setString(2, f.getGenre());
             ps.setInt   (3, f.getDuree());
-            ps.setDouble(4, f.getNote());
-            ps.setString(5, f.getSynopsis());
+            ps.setString(4, f.getSynopsis());
 
             int lignesAffectees = ps.executeUpdate();
             return lignesAffectees > 0;  
@@ -140,12 +123,9 @@ public class FilmDAO {
         }
     }
 
-    
     // MODIFIER UN FILM
-    
     public boolean update(Film f) {
-        String sql = "UPDATE films SET titre=?, genre=?, duree=?, note=?, synopsis=? " +
-                     "WHERE id_film=?";
+        String sql = "UPDATE film SET titre=?, genre=?, duree=?, synopsis=? WHERE id_film=?";
 
         try (Connection con = DatabaseConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -153,9 +133,8 @@ public class FilmDAO {
             ps.setString(1, f.getTitre());
             ps.setString(2, f.getGenre());
             ps.setInt   (3, f.getDuree());
-            ps.setDouble(4, f.getNote());
-            ps.setString(5, f.getSynopsis());
-            ps.setInt   (6, f.getIdFilm());
+            ps.setString(4, f.getSynopsis());
+            ps.setInt   (5, f.getIdFilm());
 
             int lignes = ps.executeUpdate();
             if (lignes == 0) throw new FilmIntrouvable(f.getIdFilm());
@@ -167,14 +146,11 @@ public class FilmDAO {
         }
     }
 
-    
     // SUPPRIMER UN FILM
-    
     public boolean delete(int id) {
-
         findById(id);  
 
-        String sql = "DELETE FROM films WHERE id_film = ?";
+        String sql = "DELETE FROM film WHERE id_film = ?";
 
         try (Connection con = DatabaseConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {

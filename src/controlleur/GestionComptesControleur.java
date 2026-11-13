@@ -1,67 +1,79 @@
 package controlleur;
 
+import exception.ValidationException;
 import modele.Compte;
-import modele.CompteDAO;
+import modele.LogGestionnaire;
+import service.CompteService;
 import vue.FenetreGestionComptes;
 import vue.ModernUI;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.util.List;
 
+/**
+ * Contrôleur pour la gestion des comptes et la consultation des logs.
+ * Délègue les actions et validations à CompteService.
+ */
 public class GestionComptesControleur {
-    private FenetreGestionComptes vue;
-    private CompteDAO dao;
+
+    private final FenetreGestionComptes vue;
+    private final CompteService compteService;
 
     public GestionComptesControleur(FenetreGestionComptes vue) {
         this.vue = vue;
-        this.dao = new CompteDAO();
+        this.compteService = new CompteService();
+        this.vue.initialiser(this);
+        chargerDonnees();
+    }
+
+    public GestionComptesControleur(FenetreGestionComptes vue, CompteService compteService) {
+        this.vue = vue;
+        this.compteService = compteService;
         this.vue.initialiser(this);
         chargerDonnees();
     }
 
     public void chargerDonnees() {
         vue.getModeleTable().setRowCount(0);
-        List<Compte> gestionnaires = dao.findAllGestionnaires();
+        List<Compte> gestionnaires = compteService.getTousLesGestionnaires();
         for (Compte c : gestionnaires) {
             vue.getModeleTable().addRow(new Object[]{c.getId(), c.getUsername()});
         }
     }
 
     public void actionAjouter(String user, String pass) {
-        if (user.isEmpty() || pass.isEmpty()) {
-            vue.afficherErreur("Veuillez remplir tous les champs.");
-            return;
-        }
-
-        Compte nouveau = new Compte(0, user, pass, "gestionnaire");
-        if (dao.insertGestionnaire(nouveau)) {
-            vue.afficherSucces("Gestionnaire ajouté !");
+        try {
+            compteService.ajouterGestionnaire(user, pass);
+            vue.afficherSucces("Gestionnaire ajouté avec succès !");
             vue.viderChamps();
             chargerDonnees();
-        } else {
-            vue.afficherErreur("Erreur lors de l'ajout.");
+        } catch (ValidationException e) {
+            vue.afficherErreur(e.getMessage());
         }
     }
 
     public void actionSupprimer() {
         int ligne = vue.getTable().getSelectedRow();
-        if (ligne >= 0) {
-            int id = (int) vue.getModeleTable().getValueAt(ligne, 0);
-            if (ModernUI.showConfirm(vue, "Supprimer ce gestionnaire ?") == JOptionPane.YES_OPTION) {
-                if (dao.deleteGestionnaire(id)) {
-                    chargerDonnees();
-                } else {
-                    vue.afficherErreur("Erreur lors de la suppression.");
-                }
-            }
-        } else {
+        if (ligne < 0) {
             vue.afficherErreur("Veuillez sélectionner un gestionnaire.");
+            return;
+        }
+
+        int id = (int) vue.getModeleTable().getValueAt(ligne, 0);
+        if (ModernUI.showConfirm(vue, "Supprimer ce gestionnaire ?") == JOptionPane.YES_OPTION) {
+            try {
+                compteService.supprimerGestionnaire(id);
+                vue.afficherSucces("Gestionnaire supprimé.");
+                chargerDonnees();
+            } catch (ValidationException e) {
+                vue.afficherErreur(e.getMessage());
+            }
         }
     }
 
     public void afficherLogs() {
-        modele.LogGestionnaireDAO logDAO = new modele.LogGestionnaireDAO();
-        List<modele.LogGestionnaire> logs = logDAO.findAll();
+        List<LogGestionnaire> logs = compteService.getLogsActivite();
 
         if (logs.isEmpty()) {
             JOptionPane.showMessageDialog(vue,
@@ -72,11 +84,12 @@ public class GestionComptesControleur {
         }
 
         String[] cols = {"ID Log", "Action", "Nom d'utilisateur", "ID Gestionnaire", "Date"};
-        javax.swing.table.DefaultTableModel model = new javax.swing.table.DefaultTableModel(cols, 0) {
+        DefaultTableModel model = new DefaultTableModel(cols, 0) {
+            @Override
             public boolean isCellEditable(int r, int c) { return false; }
         };
 
-        for (modele.LogGestionnaire log : logs) {
+        for (LogGestionnaire log : logs) {
             model.addRow(new Object[]{
                     log.getIdLog(),
                     log.getAction(),

@@ -1,22 +1,23 @@
 package controlleur;
 
+import exception.ValidationException;
 import modele.Compte;
-import modele.CompteDAO;
+import service.CompteService;
 import vue.FenetreConnexion;
 import vue.FenetrePrincipale;
 
 /**
  * Contrôleur pour la fenêtre de connexion.
- * Gère l'authentification et la transition vers la fenêtre principale.
+ * Reçoit les événements de la vue et appelle la couche Service.
  */
 public class ConnexionControleur {
 
-    private FenetreConnexion vue;
-    private CompteDAO dao;
+    private final FenetreConnexion vue;
+    private final CompteService compteService;
 
     public ConnexionControleur(FenetreConnexion vue) {
         this.vue = vue;
-        this.dao = new CompteDAO();
+        this.compteService = new CompteService();
 
         // Initialisation de la vue (Layout et composants)
         this.vue.initialiser();
@@ -25,27 +26,28 @@ public class ConnexionControleur {
         this.vue.getButtonSeConnecter().addActionListener(e -> actionSeConnecter());
     }
 
+    public ConnexionControleur(FenetreConnexion vue, CompteService compteService) {
+        this.vue = vue;
+        this.compteService = compteService;
+        this.vue.initialiser();
+        this.vue.getButtonSeConnecter().addActionListener(e -> actionSeConnecter());
+    }
+
     private void actionSeConnecter() {
-        String username = vue.getFieldUsername().getText().trim();
+        String username = vue.getFieldUsername().getText();
         String password = new String(vue.getFieldPassword().getPassword());
 
-        // Validation simple des champs
-        if (username.isEmpty() || password.isEmpty()) {
-            vue.afficherErreur("Champs obligatoires.");
-            return;
-        }
+        try {
+            // Appel à la couche Service (validation + DAO)
+            Compte compte = compteService.authentifier(username, password);
 
-        // Vérification des identifiants via le Model (DAO)
-        Compte compte = dao.findByUsernameAndPassword(username, password);
-
-        if (compte != null) {
-            // Authentification réussie : on ferme la connexion et on lance l'application
+            // Authentification réussie : passage à la fenêtre principale
             vue.dispose();
             FenetrePrincipale vuePrincipale = new FenetrePrincipale();
             new PrincipaleControleur(vuePrincipale, compte);
-        } else {
-            // Échec : retour visuel à l'utilisateur
-            vue.afficherErreur("Identifiants incorrects.");
+
+        } catch (ValidationException e) {
+            vue.afficherErreur(e.getMessage());
         }
     }
 }

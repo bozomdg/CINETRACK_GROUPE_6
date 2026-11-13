@@ -1,0 +1,12 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Lancer cineTrack",
+            "request": "launch",
+            "mainClass": "main.Main",
+            "projectName": "cineTrack"
+        }
+    ]
+}

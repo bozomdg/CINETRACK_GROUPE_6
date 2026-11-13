@@ -11,7 +11,9 @@ import java.util.List;
 import connexion.DatabaseConnection;
 import exception.SalleErreur;
 
-// Toutes les opérations SQL sur la table "seances"
+/**
+ * Opérations SQL sur la table "seance" (schéma cinetrack).
+ */
 public class SeanceDAO {
 
     private Seance buildSeance(ResultSet rs) throws SQLException {
@@ -20,14 +22,14 @@ public class SeanceDAO {
             rs.getInt("id_film"),
             rs.getInt("id_salle"),
             rs.getString("date_seance"),
-            rs.getString("heure"),
-            rs.getInt("places_dispo")
+            rs.getString("heure_debut"),
+            rs.getInt("place_dispo")
         );
     }
 
     public List<Seance> findAll() {
         List<Seance> liste = new ArrayList<>();
-        String sql = "SELECT * FROM seances ORDER BY date_seance, heure";
+        String sql = "SELECT * FROM seance ORDER BY date_seance, heure_debut";
 
         try (Connection con = DatabaseConnection.getConnection();
              Statement  st  = con.createStatement();
@@ -43,7 +45,7 @@ public class SeanceDAO {
 
     public List<Seance> findByFilm(int idFilm) {
         List<Seance> liste = new ArrayList<>();
-        String sql = "SELECT * FROM seances WHERE id_film = ? ORDER BY date_seance, heure";
+        String sql = "SELECT * FROM seance WHERE id_film = ? ORDER BY date_seance, heure_debut";
 
         try (Connection con = DatabaseConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -60,7 +62,7 @@ public class SeanceDAO {
 
     public List<Seance> findByDate(String date) {
         List<Seance> liste = new ArrayList<>();
-        String sql = "SELECT * FROM seances WHERE date_seance = ? ORDER BY heure";
+        String sql = "SELECT * FROM seance WHERE date_seance = ? ORDER BY heure_debut";
 
         try (Connection con = DatabaseConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -77,7 +79,7 @@ public class SeanceDAO {
     }
     
     public boolean insert(Seance s) {
-        String sql = "INSERT INTO seances (id_film, id_salle, date_seance, heure, places_dispo) " +
+        String sql = "INSERT INTO seance (id_film, id_salle, date_seance, heure_debut, place_dispo) " +
                      "VALUES (?, ?, ?, ?, ?)";
 
         try (Connection con = DatabaseConnection.getConnection();
@@ -86,7 +88,6 @@ public class SeanceDAO {
             ps.setInt (1, s.getIdFilm());
             ps.setInt (2, s.getIdSalle());
             ps.setDate(3, java.sql.Date.valueOf(s.getDateSeance()));
-
             
             String heure = s.getHeure().trim();
             if (heure.length() == 5) {
@@ -110,8 +111,9 @@ public class SeanceDAO {
             return false;
         }
     }
+
     public boolean delete(int id) {
-        String sql = "DELETE FROM seances WHERE id_seance = ?";
+        String sql = "DELETE FROM seance WHERE id_seance = ?";
 
         try (Connection con = DatabaseConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -124,15 +126,21 @@ public class SeanceDAO {
             return false;
         }
     }
+
     public boolean update(Seance s) {
-        String sql = "UPDATE seances SET id_film = ?, id_salle = ?, date_seance = ?, heure = ?, places_dispo = ? WHERE id_seance = ?";
+        String sql = "UPDATE seance SET id_film = ?, id_salle = ?, date_seance = ?, heure_debut = ?, place_dispo = ? WHERE id_seance = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             
             pstmt.setInt(1, s.getIdFilm());
             pstmt.setInt(2, s.getIdSalle());
             pstmt.setDate(3, java.sql.Date.valueOf(s.getDateSeance()));
-            pstmt.setTime(4, java.sql.Time.valueOf(s.getHeure()));
+            
+            String heure = s.getHeure().trim();
+            if (heure.length() == 5) {
+                heure = heure + ":00"; 
+            }
+            pstmt.setTime(4, java.sql.Time.valueOf(heure));
             pstmt.setInt(5, s.getPlacesDispo());
             pstmt.setInt(6, s.getIdSeance());
             
