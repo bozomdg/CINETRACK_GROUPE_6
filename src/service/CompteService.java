@@ -1,30 +1,36 @@
 package service;
 
-import dao.CompteDAO;
-import dao.LogGestionnaireDAO;
+import dao.CompteDaoImpl;
+import dao.CompteDaoInterface;
+import dao.LogGestionnaireDaoImpl;
+import dao.LogGestionnaireDaoInterface;
 import exception.ValidationException;
+import java.util.List;
 import modele.Compte;
 import modele.LogGestionnaire;
 
-import java.util.List;
-
 /**
  * Couche Service pour la gestion des comptes et de l'authentification.
- * Contient la logique métier, validations et délègue aux DAO.
+ * Contient la logique métier, validations et délègue aux DAO via injection de dépendance.
  */
 public class CompteService {
 
-    private final CompteDAO compteDAO;
-    private final LogGestionnaireDAO logDAO;
+    private final CompteDaoInterface compteDAO;
+    private final LogGestionnaireDaoInterface logDAO;
 
-    public CompteService() {
-        this.compteDAO = new CompteDAO();
-        this.logDAO = new LogGestionnaireDAO();
-    }
-
-    public CompteService(CompteDAO compteDAO, LogGestionnaireDAO logDAO) {
+    /**
+     * Injection de dépendance via le constructeur.
+     */
+    public CompteService(CompteDaoInterface compteDAO, LogGestionnaireDaoInterface logDAO) {
         this.compteDAO = compteDAO;
         this.logDAO = logDAO;
+    }
+
+    /**
+     * Constructeur par défaut injectant les implémentations JDBC PostgreSQL.
+     */
+    public CompteService() {
+        this(new CompteDaoImpl(), new LogGestionnaireDaoImpl());
     }
 
     /**
@@ -50,7 +56,7 @@ public class CompteService {
     }
 
     /**
-     * Ajoute un nouveau compte gestionnaire avec validation métier.
+     * Valide et ajoute un nouveau compte gestionnaire.
      */
     public boolean ajouterGestionnaire(String username, String password) throws ValidationException {
         if (username == null || username.trim().isEmpty() || password == null || password.trim().isEmpty()) {

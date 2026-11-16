@@ -1,47 +1,47 @@
 package controlleur;
 
 import exception.ValidationException;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import modele.Compte;
 import service.CompteService;
 import vue.FenetreConnexion;
 import vue.FenetrePrincipale;
 
 /**
- * Contrôleur pour la fenêtre de connexion.
- * Reçoit les événements de la vue et appelle la couche Service.
+ * Contrôleur de la fenêtre de connexion.
+ * Reçoit le clic sur le bouton et appelle le service.
  */
 public class ConnexionControleur {
 
-    private final FenetreConnexion vue;
-    private final CompteService compteService;
+    private FenetreConnexion vue;
+    private CompteService compteService;
 
     public ConnexionControleur(FenetreConnexion vue) {
         this.vue = vue;
         this.compteService = new CompteService();
 
-        // Initialisation de la vue (Layout et composants)
+        // Prépare la fenêtre
         this.vue.initialiser();
 
-        // Ajout de l'écouteur sur le bouton de connexion
-        this.vue.getButtonSeConnecter().addActionListener(e -> actionSeConnecter());
+        // Quand on clique sur "Se connecter", on appelle seConnecter()
+        this.vue.getButtonSeConnecter().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                seConnecter();
+            }
+        });
     }
 
-    public ConnexionControleur(FenetreConnexion vue, CompteService compteService) {
-        this.vue = vue;
-        this.compteService = compteService;
-        this.vue.initialiser();
-        this.vue.getButtonSeConnecter().addActionListener(e -> actionSeConnecter());
-    }
-
-    private void actionSeConnecter() {
+    /** Vérifie l'identifiant et le mot de passe, puis ouvre la fenêtre principale */
+    private void seConnecter() {
         String username = vue.getFieldUsername().getText();
         String password = new String(vue.getFieldPassword().getPassword());
 
         try {
-            // Appel à la couche Service (validation + DAO)
             Compte compte = compteService.authentifier(username, password);
 
-            // Authentification réussie : passage à la fenêtre principale
+            // Connexion réussie : on ferme la connexion et on ouvre la fenêtre principale
             vue.dispose();
             FenetrePrincipale vuePrincipale = new FenetrePrincipale();
             new PrincipaleControleur(vuePrincipale, compte);

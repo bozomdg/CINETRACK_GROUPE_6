@@ -12,11 +12,11 @@ import java.util.List;
 import modele.Film;
 
 /**
- * Couche DAO : Opérations SQL sur la table "film" (schéma cinetrack).
+ * Implémentation JDBC PostgreSQL de FilmDaoInterface.
  */
-public class FilmDAO {
+public class FilmDaoImpl implements FilmDaoInterface {
 
-    // LIRE TOUS LES FILMS
+    @Override
     public List<Film> findAll() {
         List<Film> liste = new ArrayList<>();
         String sql = "SELECT id_film, titre, genre, duree, synopsis FROM film ORDER BY id_film";
@@ -44,7 +44,7 @@ public class FilmDAO {
         return liste;
     }
 
-    // LIRE UN FILM PAR ID
+    @Override
     public Film findById(int id) {
         String sql = "SELECT id_film, titre, genre, duree, synopsis FROM film WHERE id_film = ?";
 
@@ -73,7 +73,7 @@ public class FilmDAO {
         }
     }
 
-    // RECHERCHER PAR GENRE
+    @Override
     public List<Film> findByGenre(String genre) {
         List<Film> liste = new ArrayList<>();
         String sql = "SELECT id_film, titre, genre, duree, synopsis FROM film WHERE genre = ? ORDER BY id_film";
@@ -102,7 +102,7 @@ public class FilmDAO {
         return liste;
     }
 
-    // INSÉRER UN FILM
+    @Override
     public boolean insert(Film f) {
         String sql = "INSERT INTO film (titre, genre, duree, synopsis) VALUES (?, ?, ?, ?)";
 
@@ -123,7 +123,7 @@ public class FilmDAO {
         }
     }
 
-    // MODIFIER UN FILM
+    @Override
     public boolean update(Film f) {
         String sql = "UPDATE film SET titre=?, genre=?, duree=?, synopsis=? WHERE id_film=?";
 
@@ -146,7 +146,7 @@ public class FilmDAO {
         }
     }
 
-    // SUPPRIMER UN FILM
+    @Override
     public boolean delete(int id) {
         findById(id);  
 

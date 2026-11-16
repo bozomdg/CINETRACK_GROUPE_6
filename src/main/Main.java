@@ -1,23 +1,20 @@
 package main;
 
 import controlleur.ConnexionControleur;
+import javax.swing.UIManager;
 import vue.FenetreConnexion;
-import javax.swing.*;
 
 public class Main {
     public static void main(String[] args) {
+        
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("Impossible de changer l'apparence : " + e.getMessage());
         }
 
-        System.setProperty("awt.useSystemAAFontSettings", "on");
-        System.setProperty("swing.aatext", "true");
-
-        SwingUtilities.invokeLater(() -> {
-            FenetreConnexion vue = new FenetreConnexion();
-            new ConnexionControleur(vue);
-        });
+        // Ouvre la fenêtre de connexion
+        FenetreConnexion vue = new FenetreConnexion();
+        new ConnexionControleur(vue);
     }
 }

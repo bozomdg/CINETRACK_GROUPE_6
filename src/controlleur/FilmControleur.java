@@ -1,22 +1,27 @@
 package controlleur;
 
+import java.util.List;
+
 import exception.FilmIntrouvable;
 import exception.ValidationException;
-import java.util.List;
 import modele.Film;
 import service.FilmService;
 import vue.FenetreFilms;
 
 /**
- * Contrôleur Films (Couche Présentation).
- * Fait le pont entre la vue et la couche Service.
+ * Contrôleur pour la gestion des films (interface Swing).
+ * Il fait le lien entre la fenêtre d'affichage (FenetreFilms)
+ * et les règles de gestion (FilmService).
  */
-@SuppressWarnings("this-escape")
 public class FilmControleur {
 
-    private final FilmService filmService;
-    private final FenetreFilms vue;
+    // Attributs : le service pour la logique et la vue pour l'affichage
+    private FilmService filmService;
+    private FenetreFilms vue;
 
+    /**
+     * Constructeur : initialise la vue et charge les films
+     */
     public FilmControleur(FenetreFilms vue) {
         this.vue = vue;
         this.filmService = new FilmService();
@@ -24,33 +29,31 @@ public class FilmControleur {
         chargerFilms();
     }
 
-    
-    public FilmControleur(FenetreFilms vue, FilmService filmService) {
-        this.vue = vue;
-        this.filmService = filmService;
-        this.vue.initialiser(this);
-        chargerFilms();
-    }
-
-    /** Charge tous les films via le service et rafraîchit la vue */
+    /**
+     * Récupère tous les films de la base et les envoie à la vue
+     */
     public void chargerFilms() {
-        List<Film> liste = filmService.getAllFilms();
+        List<Film> liste = filmService.recupererTousLesFilms();
         vue.afficherFilms(liste);
         vue.mettreAJourTitre(liste.size());
     }
 
-    /** Transmet la demande d'ajout au service */
+    /**
+     * Ajoute un nouveau film en passant par le service
+     */
     public void ajouterFilm(String titre, String genre, String dureeStr, String synopsis) {
         try {
             filmService.ajouterFilm(titre, genre, dureeStr, synopsis);
-            vue.afficherSucces("Film \"" + titre.trim() + "\" ajouté avec succès !");
+            vue.afficherSucces("Film ajouté avec succès !");
             chargerFilms();
         } catch (ValidationException e) {
             vue.afficherErreur(e.getMessage());
         }
     }
 
-    /** Transmet la demande de modification au service */
+    /**
+     * Modifie un film existant
+     */
     public void modifierFilm(int id, String titre, String genre, String dureeStr, String synopsis) {
         try {
             filmService.modifierFilm(id, titre, genre, dureeStr, synopsis);
@@ -61,18 +64,22 @@ public class FilmControleur {
         }
     }
 
-    /** Transmet la suppression au service */
+    /**
+     * Supprime un film par son identifiant
+     */
     public void supprimerFilm(int id, String titre) {
         try {
             filmService.supprimerFilm(id);
             vue.afficherSucces("Film \"" + titre + "\" supprimé.");
             chargerFilms();
-        } catch (FilmIntrouvable | ValidationException e) {
+        } catch (ValidationException | FilmIntrouvable e) {
             vue.afficherErreur(e.getMessage());
         }
     }
 
-    /** Filtre les films par genre */
+    /**
+     * Filtre la liste des films selon le genre choisi
+     */
     public void rechercherParGenre(String genre) {
         List<Film> liste = filmService.rechercherParGenre(genre);
         vue.afficherFilms(liste);

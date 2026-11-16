@@ -14,7 +14,6 @@ import vue.ModernUI;
  * Contrôleur pour la gestion des comptes et la consultation des logs.
  * Délègue les actions et validations à CompteService.
  */
-@SuppressWarnings("this-escape")
 public class GestionComptesControleur {
 
     private final FenetreGestionComptes vue;

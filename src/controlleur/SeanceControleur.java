@@ -14,7 +14,6 @@ import vue.FenetreSeances;
  * Contrôleur pour la gestion des séances et réservations.
  * Délègue la logique métier à SeanceService.
  */
-@SuppressWarnings("this-escape")
 public class SeanceControleur {
 
     private final SeanceService seanceService;

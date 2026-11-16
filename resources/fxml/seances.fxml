@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.geometry.Insets?>
+
+<!-- Vue gestion des séances — CinéTrack -->
+<!-- Contrôleur : controlleur.fx.SeanceFxController -->
+<BorderPane xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controlleur.fx.SeanceFxController"
+            stylesheets="@../css/style.css"
+            style="-fx-background-color: #f8f9fa;">
+
+    <!-- EN-TÊTE DE LA VUE -->
+    <top>
+        <VBox style="-fx-background-color: white; -fx-border-color: #dee2e6; -fx-border-width: 0 0 1 0;">
+            <HBox alignment="CENTER_LEFT" spacing="12">
+                <padding><Insets top="16" right="20" bottom="16" left="20"/></padding>
+
+                <Label text="  Gestion des Séances" styleClass="label-title"/>
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <!-- Filtre par date -->
+                <Label text="Date :" styleClass="label-muted"/>
+                <TextField fx:id="champFiltreDate"
+                           promptText="AAAA-MM-JJ"
+                           styleClass="text-field-modern"
+                           prefWidth="130"/>
+
+                <Button text="Filtrer"
+                        styleClass="btn-secondary"
+                        onAction="#handleFiltrerDate"
+                        style="-fx-padding: 7 14 7 14;"/>
+
+                <Button text="  Rafraîchir"
+                        styleClass="btn-secondary"
+                        onAction="#handleRafraichir"
+                        style="-fx-padding: 7 14 7 14;"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <!-- TABLEAU DES SÉANCES -->
+    <center>
+        <VBox spacing="0" style="-fx-background-color: #f8f9fa;">
+            <padding><Insets top="16" right="16" bottom="0" left="16"/></padding>
+
+            <TableView fx:id="tableSeances"
+                       styleClass="table-view"
+                       VBox.vgrow="ALWAYS"
+                       onMouseClicked="#handleSelectionSeance">
+                <columns>
+                    <TableColumn fx:id="colIdSeance"    text="ID"       prefWidth="50"/>
+                    <TableColumn fx:id="colIdFilm"      text="Film ID"  prefWidth="80"/>
+                    <TableColumn fx:id="colIdSalle"     text="Salle ID" prefWidth="80"/>
+                    <TableColumn fx:id="colDate"        text="Date"     prefWidth="120"/>
+                    <TableColumn fx:id="colHeure"       text="Heure"    prefWidth="90"/>
+                    <TableColumn fx:id="colPlaces"      text="Places"   prefWidth="80"/>
+                    <TableColumn fx:id="colStatut"      text="Statut"   prefWidth="100"/>
+                </columns>
+                <placeholder>
+                    <Label text="Aucune séance trouvée." styleClass="label-muted"/>
+                </placeholder>
+            </TableView>
+        </VBox>
+    </center>
+
+    <!-- PANNEAU DROIT : Formulaire -->
+    <right>
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER"
+                    style="-fx-background-color: white; -fx-border-color: #dee2e6; -fx-border-width: 0 0 0 1;">
+            <VBox spacing="12" prefWidth="260"
+                  style="-fx-background-color: white; -fx-padding: 20;">
+
+                <Label fx:id="labelTitreFormulaire"
+                       text="Ajouter une séance"
+                       styleClass="label-subtitle"/>
+                <Separator/>
+
+                <Label text="ID Film *" styleClass="label-champ"/>
+                <TextField fx:id="champIdFilm"
+                           promptText="ID du film"
+                           styleClass="text-field-modern"/>
+
+                <Label text="ID Salle *" styleClass="label-champ"/>
+                <TextField fx:id="champIdSalle"
+                           promptText="ID de la salle"
+                           styleClass="text-field-modern"/>
+
+                <Label text="Date (AAAA-MM-JJ) *" styleClass="label-champ"/>
+                <TextField fx:id="champDate"
+                           promptText="2026-11-20"
+                           styleClass="text-field-modern"/>
+
+                <Label text="Heure (HH:MM) *" styleClass="label-champ"/>
+                <TextField fx:id="champHeure"
+                           promptText="14:30"
+                           styleClass="text-field-modern"/>
+
+                <Label text="Places disponibles *" styleClass="label-champ"/>
+                <TextField fx:id="champPlaces"
+                           promptText="Ex: 120"
+                           styleClass="text-field-modern"/>
+
+                <Label fx:id="labelMessage"
+                       text=""
+                       wrapText="true"
+                       style="-fx-min-height: 20px;"/>
+
+                <Button text="  Ajouter"
+                        styleClass="btn-success"
+                        onAction="#handleAjouter"
+                        prefWidth="Infinity"
+                        style="-fx-padding: 9 0 9 0;">
+                    <VBox.margin><Insets top="6"/></VBox.margin>
+                </Button>
+
+                <Button text="  Modifier"
+                        styleClass="btn-warning"
+                        onAction="#handleModifier"
+                        prefWidth="Infinity"
+                        style="-fx-padding: 9 0 9 0;"/>
+
+                <Button text="  Supprimer"
+                        styleClass="btn-danger"
+                        onAction="#handleSupprimer"
+                        prefWidth="Infinity"
+                        style="-fx-padding: 9 0 9 0;"/>
+
+                <Button text="Vider"
+                        styleClass="btn-secondary"
+                        onAction="#handleVider"
+                        prefWidth="Infinity"
+                        style="-fx-padding: 7 0 7 0;">
+                    <VBox.margin><Insets top="4" bottom="10"/></VBox.margin>
+                </Button>
+
+                <!-- SECTION RÉSERVATION -->
+                <Separator/>
+                <Label text="  Réservation de places" styleClass="label-subtitle"/>
+                <Label text="(Sélectionnez d'abord une séance)" styleClass="label-muted"/>
+
+                <Label text="Nom client *" styleClass="label-champ"/>
+                <TextField fx:id="champNomClient"
+                           promptText="Ex: Dupont"
+                           styleClass="text-field-modern"/>
+
+                <Label text="Prénom client *" styleClass="label-champ"/>
+                <TextField fx:id="champPrenomClient"
+                           promptText="Ex: Jean"
+                           styleClass="text-field-modern"/>
+
+                <Label text="Nombre de places *" styleClass="label-champ"/>
+                <TextField fx:id="champNbPlaces"
+                           promptText="Ex: 2"
+                           styleClass="text-field-modern"/>
+
+                <Button text="  Confirmer la réservation"
+                        styleClass="btn-primary"
+                        onAction="#handleReserver"
+                        prefWidth="Infinity"
+                        style="-fx-padding: 9 0 9 0;">
+                    <VBox.margin><Insets top="6"/></VBox.margin>
+                </Button>
+
+                <Button text="  Voir les réservations"
+                        styleClass="btn-secondary"
+                        onAction="#handleVoirReservations"
+                        prefWidth="Infinity"
+                        style="-fx-padding: 7 0 7 0;"/>
+
+            </VBox>
+        </ScrollPane>
+    </right>
+
+</BorderPane>

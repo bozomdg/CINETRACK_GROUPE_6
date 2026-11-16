@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Button?>
+<?import javafx.geometry.Insets?>
+
+<!-- Fenêtre principale — CinéTrack -->
+<!-- Contrôleur : controlleur.fx.MainFxController -->
+<BorderPane xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controlleur.fx.MainFxController"
+            prefWidth="1100" prefHeight="680"
+            stylesheets="@../css/style.css">
+
+    <!-- EN-TÊTE-->
+    <top>
+        <HBox styleClass="header" alignment="CENTER_LEFT" spacing="12">
+
+            <!-- Titre de l'application -->
+            <Label text="  CinéTrack" styleClass="header-title"/>
+
+            <!-- Séparateur flexible  -->
+            <Region HBox.hgrow="ALWAYS"/>
+
+            <!-- Infos de l'utilisateur connecté -->
+            <Label fx:id="labelUser" text="Utilisateur" styleClass="header-info"/>
+            <Label text="·" styleClass="header-info"/>
+            <Label fx:id="labelRole" text="Rôle" styleClass="header-info"/>
+
+            <!-- Bouton déconnexion -->
+            <Button text="Se déconnecter"
+                    styleClass="btn-secondary"
+                    onAction="#handleDeconnexion"
+                    style="-fx-padding: 6 14 6 14; -fx-font-size: 12px;">
+                <HBox.margin>
+                    <Insets left="16"/>
+                </HBox.margin>
+            </Button>
+
+        </HBox>
+    </top>
+
+    <!-- BARRE LATÉRALE navigation -->
+    <left>
+        <VBox styleClass="sidebar" prefWidth="220">
+
+            <!-- Section Navigation -->
+            <Label text="NAVIGATION" styleClass="sidebar-title"/>
+
+            <!-- Bouton Films  -->
+            <Button fx:id="btnFilms"
+                    text="  Films"
+                    styleClass="sidebar-btn-active"
+                    onAction="#handleFilms"/>
+
+            <!-- Bouton Séances -->
+            <Button fx:id="btnSeances"
+                    text="  Séances"
+                    styleClass="sidebar-btn"
+                    onAction="#handleSeances"/>
+
+            <!-- Bouton Salles -->
+            <Button fx:id="btnSalles"
+                    text="  Salles"
+                    styleClass="sidebar-btn"
+                    onAction="#handleSalles"/>
+
+            <!-- Section Administration  -->
+            <Label text="ADMINISTRATION" styleClass="sidebar-title"/>
+
+            <!-- Bouton Gestionnaires  -->
+            <Button fx:id="btnGestionnaires"
+                    text="  Gestionnaires"
+                    styleClass="sidebar-btn"
+                    onAction="#handleGestionnaires"/>
+
+            <!-- Séparateur flexible -->
+            <Region VBox.vgrow="ALWAYS"/>
+
+            <!-- Section en bas -->
+            <Label text="SYSTÈME" styleClass="sidebar-title"/>
+            <Button text="  Quitter"
+                    styleClass="sidebar-btn"
+                    onAction="#handleQuitter"/>
+
+        </VBox>
+    </left>
+
+    <!-- ZONE CENTRALE — contenu dynamique -->
+    <center>
+        <!-- ContentArea : chargement dynamique des sous-vues -->
+        <BorderPane fx:id="contentArea"
+                    style="-fx-background-color: #f8f9fa; -fx-padding: 0;"/>
+    </center>
+
+</BorderPane>

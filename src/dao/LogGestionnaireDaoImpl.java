@@ -10,10 +10,11 @@ import java.util.List;
 import modele.LogGestionnaire;
 
 /**
- * Couche DAO : Accès aux logs d'activité sur la table "log" (schéma cinetrack).
+ * Implémentation JDBC PostgreSQL de LogGestionnaireDaoInterface.
  */
-public class LogGestionnaireDAO {
+public class LogGestionnaireDaoImpl implements LogGestionnaireDaoInterface {
 
+    @Override
     public List<LogGestionnaire> findAll() {
         List<LogGestionnaire> liste = new ArrayList<>();
         String sql = "SELECT l.id_log, l.action, COALESCE(u.email, 'Inconnu') AS username, l.id_user, l.date_modification "

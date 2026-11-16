@@ -29,8 +29,12 @@ public class Salle {
     	return idSalle; }
     public String getNom()        { 
     	return nom; }
+    public String getNomSalle()   {
+        return nom; }
     public int    getCapacite()   { 
     	return capacite; }
+    public int    getCapaciteSalle() {
+        return capacite; }
     public String getEquipement() { 
     	return equipement; }
 
