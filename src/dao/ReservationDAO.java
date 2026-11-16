@@ -1,13 +1,13 @@
-package modele;
+package dao;
 
 import connexion.DatabaseConnection;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import modele.Reservation;
 
 /**
- * DAO pour la table "reservation" (schéma cinetrack).
+ * Couche DAO : Opérations SQL sur la table "reservation" (schéma cinetrack).
  */
 public class ReservationDAO {
 

@@ -2,6 +2,9 @@
 package exception;
 
 public class FilmIntrouvable  extends RuntimeException {
+
+    private static final long serialVersionUID = 1L;
+
     private int idFilm;
 
     public FilmIntrouvable(int id) {

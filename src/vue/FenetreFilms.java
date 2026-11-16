@@ -1,21 +1,22 @@
 package vue;
 
 import controlleur.FilmControleur;
-import modele.Film;
-
+import java.awt.*;
+import java.util.List;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
-import java.awt.*;
-import java.util.List;
+import modele.Film;
 
 public class FenetreFilms extends JPanel {
 
+    private static final long serialVersionUID = 1L;
+
     private JTable table;
     private DefaultTableModel modeleTable;
-    private FilmControleur controleur;
+    private transient FilmControleur controleur;
 
-    private JTextField champTitre, champDuree, champNote, champSynopsis;
+    private JTextField champTitre, champDuree, champSynopsis;
     private JComboBox<String> comboGenre;
     private JButton btnAjouter, btnModifier, btnSupprimer, btnRafraichir;
     private JLabel labelTitre;
@@ -81,7 +82,7 @@ public class FenetreFilms extends JPanel {
         toolbar.add(right, BorderLayout.EAST);
         add(toolbar, BorderLayout.NORTH);
 
-        String[] colonnes = { "ID", "Titre", "Genre", "Dur\u00e9e", "Note", "Synopsis" };
+        String[] colonnes = { "ID", "Titre", "Genre", "Dur\u00e9e", "Synopsis" };
         modeleTable = new DefaultTableModel(colonnes, 0) {
             public boolean isCellEditable(int row, int col) {
                 return false;
@@ -155,14 +156,8 @@ public class FenetreFilms extends JPanel {
         formGrid.add(champDuree, gbc);
 
         gbc.gridy = 6;
-        formGrid.add(new JLabel("Note (0-10)"), gbc);
-        gbc.gridy = 7;
-        champNote = ModernUI.createTextField(15);
-        formGrid.add(champNote, gbc);
-
-        gbc.gridy = 8;
         formGrid.add(new JLabel("Synopsis"), gbc);
-        gbc.gridy = 9;
+        gbc.gridy = 7;
         champSynopsis = ModernUI.createTextField(15);
         formGrid.add(champSynopsis, gbc);
 
@@ -189,7 +184,7 @@ public class FenetreFilms extends JPanel {
 
         btnAjouter.addActionListener(e -> controleur.ajouterFilm(
                 champTitre.getText(), (String) comboGenre.getSelectedItem(),
-                champDuree.getText(), champNote.getText(), champSynopsis.getText()));
+                champDuree.getText(), champSynopsis.getText()));
 
         btnModifier.addActionListener(e -> {
             int ligne = table.getSelectedRow();
@@ -197,7 +192,7 @@ public class FenetreFilms extends JPanel {
                 int id = (int) modeleTable.getValueAt(ligne, 0);
                 controleur.modifierFilm(id, champTitre.getText(),
                         (String) comboGenre.getSelectedItem(),
-                        champDuree.getText(), champNote.getText(), champSynopsis.getText());
+                        champDuree.getText(), champSynopsis.getText());
             }
         });
 
@@ -228,10 +223,9 @@ public class FenetreFilms extends JPanel {
     public void afficherFilms(List<Film> films) {
         modeleTable.setRowCount(0);
         for (Film f : films) {
-            String noteAffichage = f.getNote() > 0 ? String.valueOf(f.getNote()) : "-";
             modeleTable.addRow(new Object[] {
                     f.getIdFilm(), f.getTitre(), f.getGenre(),
-                    f.getDureeFormatee(), noteAffichage, f.getSynopsis()
+                    f.getDureeFormatee(), f.getSynopsis()
             });
         }
         mettreAJourTitre(films.size());
@@ -261,8 +255,7 @@ public class FenetreFilms extends JPanel {
             String genre = (String) modeleTable.getValueAt(ligne, 2);
             comboGenre.setSelectedItem(genre);
             champDuree.setText(String.valueOf(modeleTable.getValueAt(ligne, 3)));
-            champNote.setText(String.valueOf(modeleTable.getValueAt(ligne, 4)));
-            champSynopsis.setText((String) modeleTable.getValueAt(ligne, 5));
+            champSynopsis.setText((String) modeleTable.getValueAt(ligne, 4));
         }
     }
 }

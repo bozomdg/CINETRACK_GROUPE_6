@@ -2,19 +2,19 @@ package controlleur;
 
 import exception.SalleErreur;
 import exception.ValidationException;
+import java.sql.SQLException;
+import java.util.List;
 import modele.Compte;
 import modele.Reservation;
 import service.SeanceService;
 import vue.FenetrePrincipale;
 import vue.FenetreSeances;
 
-import java.sql.SQLException;
-import java.util.List;
-
 /**
  * Contrôleur pour la gestion des séances et réservations.
  * Délègue la logique métier à SeanceService.
  */
+@SuppressWarnings("this-escape")
 public class SeanceControleur {
 
     private final SeanceService seanceService;

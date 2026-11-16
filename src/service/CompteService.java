@@ -1,10 +1,10 @@
 package service;
 
+import dao.CompteDAO;
+import dao.LogGestionnaireDAO;
 import exception.ValidationException;
 import modele.Compte;
-import modele.CompteDAO;
 import modele.LogGestionnaire;
-import modele.LogGestionnaireDAO;
 
 import java.util.List;
 
@@ -91,4 +91,3 @@ public class CompteService {
         return logDAO.findAll();
     }
 }
-

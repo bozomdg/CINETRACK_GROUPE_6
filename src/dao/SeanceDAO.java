@@ -1,5 +1,7 @@
-package modele;
+package dao;
 
+import connexion.DatabaseConnection;
+import exception.SalleErreur;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -7,12 +9,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-
-import connexion.DatabaseConnection;
-import exception.SalleErreur;
+import modele.Seance;
 
 /**
- * Opérations SQL sur la table "seance" (schéma cinetrack).
+ * Couche DAO : Opérations SQL sur la table "seance" (schéma cinetrack).
  */
 public class SeanceDAO {
 

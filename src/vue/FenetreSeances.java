@@ -12,8 +12,10 @@ import java.util.List;
 
 public class FenetreSeances extends JPanel {
 
-    private FenetrePrincipale fenetrePrincipale;
-    private SeanceControleur controleur;
+    private static final long serialVersionUID = 1L;
+
+    private transient FenetrePrincipale fenetrePrincipale;
+    private transient SeanceControleur controleur;
     private JTable table;
     private DefaultTableModel modeleTable;
     private JTextField champDate;

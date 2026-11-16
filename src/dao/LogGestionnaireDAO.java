@@ -1,16 +1,16 @@
-package modele;
+package dao;
 
 import connexion.DatabaseConnection;
-
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import modele.LogGestionnaire;
 
 /**
- * DAO pour la table "log" (schéma cinetrack).
+ * Couche DAO : Accès aux logs d'activité sur la table "log" (schéma cinetrack).
  */
 public class LogGestionnaireDAO {
 

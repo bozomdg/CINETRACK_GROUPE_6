@@ -1,17 +1,18 @@
 package vue;
 
-import modele.Compte;
-
+import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import java.awt.*;
+import modele.Compte;
 
 public class FenetrePrincipale extends JFrame {
+
+    private static final long serialVersionUID = 1L;
 
     private JPanel panelCentral;
     private JLabel labelStatut;
     private JPanel sidebar;
-    private Compte compteConnecte;
+    private transient Compte compteConnecte;
     private JButton activeButton;
     private JButton btnFilms, btnSeances, btnGestionnaires, btnQuitter;
     private JLabel userLabel;
@@ -221,8 +222,8 @@ public class FenetrePrincipale extends JFrame {
         afficherAccueil();
     }
 
-    private Runnable filmsAction;
-    private Runnable seancesAction;
+    private transient Runnable filmsAction;
+    private transient Runnable seancesAction;
 
     /**
      * Construit dynamiquement la page d'accueil avec des cartes de statistiques/actions.

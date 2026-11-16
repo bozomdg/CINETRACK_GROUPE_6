@@ -2,6 +2,9 @@
 package exception;
 
 public class SalleErreur extends RuntimeException {
+
+    private static final long serialVersionUID = 1L;
+
     private int    idSalle;
     private String dateHeure;
 

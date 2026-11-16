@@ -2,6 +2,9 @@
 package exception;
 
 public class NoteErreur extends RuntimeException {
+
+    private static final long serialVersionUID = 1L;
+
     private double valeurInvalide;
 
     public NoteErreur(double valeur) {

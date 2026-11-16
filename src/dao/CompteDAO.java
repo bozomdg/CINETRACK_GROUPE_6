@@ -1,15 +1,16 @@
-package modele;
+package dao;
 
+import connexion.DatabaseConnection;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import connexion.DatabaseConnection;
+import modele.Compte;
 
 /**
- * DAO pour la gestion des comptes sur la table 'utilisateur' (schéma cinetrack).
+ * Couche DAO : Gestion des comptes sur la table 'utilisateur' (schéma cinetrack).
  * Gère le chiffrement bcrypt pgcrypto et les rôles ADMINISTRATEUR / CAISSIER.
  */
 public class CompteDAO {

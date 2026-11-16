@@ -1,10 +1,10 @@
 package vue;
 
 import controlleur.GestionComptesControleur;
+import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
-import java.awt.*;
 
 /**
  * Vue modernisée pour gérer les gestionnaires avec ModernUI.
@@ -12,9 +12,11 @@ import java.awt.*;
  */
 public class FenetreGestionComptes extends JPanel {
 
+    private static final long serialVersionUID = 1L;
+
     private JTable table;
     private DefaultTableModel modeleTable;
-    private GestionComptesControleur controleur;
+    private transient GestionComptesControleur controleur;
 
     private JTextField champUsername;
     private JPasswordField champPassword;

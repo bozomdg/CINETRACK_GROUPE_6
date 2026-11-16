@@ -1,16 +1,16 @@
 package service;
 
+import dao.FilmDAO;
 import exception.FilmIntrouvable;
 import exception.NoteErreur;
 import exception.ValidationException;
 import modele.Film;
-import modele.FilmDAO;
 
 import java.util.List;
 
 /**
  * Couche Service pour la gestion des films.
- * Encapsule les règles métier (validation durée, note, champs requis) et l'accès aux données.
+ * Encapsule les règles métier (validation durée, champs requis) et l'accès aux données.
  */
 public class FilmService {
 
@@ -51,6 +51,11 @@ public class FilmService {
     /**
      * Valide les données et insère un nouveau film.
      */
+    public boolean ajouterFilm(String titre, String genre, String dureeStr, String synopsis)
+            throws ValidationException {
+        return ajouterFilm(titre, genre, dureeStr, "0", synopsis);
+    }
+
     public boolean ajouterFilm(String titre, String genre, String dureeStr, String noteStr, String synopsis)
             throws ValidationException, NoteErreur {
 
@@ -72,6 +77,11 @@ public class FilmService {
     /**
      * Valide et modifie un film existant.
      */
+    public boolean modifierFilm(int id, String titre, String genre, String dureeStr, String synopsis)
+            throws ValidationException, FilmIntrouvable {
+        return modifierFilm(id, titre, genre, dureeStr, "0", synopsis);
+    }
+
     public boolean modifierFilm(int id, String titre, String genre, String dureeStr, String noteStr, String synopsis)
             throws ValidationException, NoteErreur, FilmIntrouvable {
 
@@ -163,4 +173,3 @@ public class FilmService {
         }
     }
 }
-

@@ -1,9 +1,9 @@
 package vue;
 
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.geom.RoundRectangle2D;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 
 public class ModernUI {
 
@@ -157,9 +157,11 @@ public class ModernUI {
     }
 
     public static class RoundedPanel extends JPanel {
-        private int radius;
-        private Color bgColor;
+        private static final long serialVersionUID = 1L;
+        private final int radius;
+        private final Color bgColor;
 
+        @SuppressWarnings("this-escape")
         public RoundedPanel(int radius, Color bg) {
             super();
             this.radius = radius;

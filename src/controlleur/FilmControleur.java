@@ -1,18 +1,17 @@
 package controlleur;
 
 import exception.FilmIntrouvable;
-import exception.NoteErreur;
 import exception.ValidationException;
+import java.util.List;
 import modele.Film;
 import service.FilmService;
 import vue.FenetreFilms;
-
-import java.util.List;
 
 /**
  * Contrôleur Films (Couche Présentation).
  * Fait le pont entre la vue et la couche Service.
  */
+@SuppressWarnings("this-escape")
 public class FilmControleur {
 
     private final FilmService filmService;
@@ -25,6 +24,7 @@ public class FilmControleur {
         chargerFilms();
     }
 
+    
     public FilmControleur(FenetreFilms vue, FilmService filmService) {
         this.vue = vue;
         this.filmService = filmService;
@@ -40,23 +40,23 @@ public class FilmControleur {
     }
 
     /** Transmet la demande d'ajout au service */
-    public void ajouterFilm(String titre, String genre, String dureeStr, String noteStr, String synopsis) {
+    public void ajouterFilm(String titre, String genre, String dureeStr, String synopsis) {
         try {
-            filmService.ajouterFilm(titre, genre, dureeStr, noteStr, synopsis);
+            filmService.ajouterFilm(titre, genre, dureeStr, synopsis);
             vue.afficherSucces("Film \"" + titre.trim() + "\" ajouté avec succès !");
             chargerFilms();
-        } catch (ValidationException | NoteErreur e) {
+        } catch (ValidationException e) {
             vue.afficherErreur(e.getMessage());
         }
     }
 
     /** Transmet la demande de modification au service */
-    public void modifierFilm(int id, String titre, String genre, String dureeStr, String noteStr, String synopsis) {
+    public void modifierFilm(int id, String titre, String genre, String dureeStr, String synopsis) {
         try {
-            filmService.modifierFilm(id, titre, genre, dureeStr, noteStr, synopsis);
+            filmService.modifierFilm(id, titre, genre, dureeStr, synopsis);
             vue.afficherSucces("Film modifié avec succès !");
             chargerFilms();
-        } catch (ValidationException | NoteErreur | FilmIntrouvable e) {
+        } catch (ValidationException | FilmIntrouvable e) {
             vue.afficherErreur(e.getMessage());
         }
     }

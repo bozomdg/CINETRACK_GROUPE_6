@@ -1,13 +1,15 @@
 package vue;
 
+import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import java.awt.*;
 
 /**
  * Fenêtre de connexion modernisée utilisant les composants de ModernUI.
  */
 public class FenetreConnexion extends JFrame {
+
+    private static final long serialVersionUID = 1L;
 
     private JTextField fieldUsername;
     private JPasswordField fieldPassword;

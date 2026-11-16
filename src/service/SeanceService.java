@@ -1,12 +1,12 @@
 package service;
 
+import dao.ReservationDAO;
+import dao.SeanceDAO;
 import exception.SalleErreur;
 import exception.ValidationException;
 import modele.Compte;
 import modele.Reservation;
-import modele.ReservationDAO;
 import modele.Seance;
-import modele.SeanceDAO;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -189,4 +189,3 @@ public class SeanceService {
         }
     }
 }
-

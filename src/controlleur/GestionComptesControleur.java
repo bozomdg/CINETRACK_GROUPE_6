@@ -1,20 +1,20 @@
 package controlleur;
 
 import exception.ValidationException;
+import java.util.List;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import modele.Compte;
 import modele.LogGestionnaire;
 import service.CompteService;
 import vue.FenetreGestionComptes;
 import vue.ModernUI;
 
-import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
-import java.util.List;
-
 /**
  * Contrôleur pour la gestion des comptes et la consultation des logs.
  * Délègue les actions et validations à CompteService.
  */
+@SuppressWarnings("this-escape")
 public class GestionComptesControleur {
 
     private final FenetreGestionComptes vue;
