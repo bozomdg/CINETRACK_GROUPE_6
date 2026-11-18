@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.geometry.Insets?>
+
+<!-- Vue gestion des gestionnaires — CinéTrack (Admin uniquement) -->
+<!-- Contrôleur : controlleur.fx.GestionnaireFxController -->
+<BorderPane xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controlleur.fx.GestionnaireFxController"
+            stylesheets="@../css/style.css"
+            style="-fx-background-color: #f8f9fa;">
+
+    <!-- EN-TÊTE -->
+    <top>
+        <VBox style="-fx-background-color: white; -fx-border-color: #dee2e6; -fx-border-width: 0 0 1 0;">
+            <HBox alignment="CENTER_LEFT" spacing="12">
+                <padding><Insets top="16" right="20" bottom="16" left="20"/></padding>
+                <Label text="  Gestion des Gestionnaires" styleClass="label-title"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="  Rafraîchir"
+                        styleClass="btn-secondary"
+                        onAction="#handleRafraichir"
+                        style="-fx-padding: 7 14 7 14;"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <!-- TABLEAU -->
+    <center>
+        <VBox spacing="0" style="-fx-background-color: #f8f9fa;">
+            <padding><Insets top="16" right="16" bottom="0" left="16"/></padding>
+
+            <TableView fx:id="tableGestionnaires"
+                       styleClass="table-view"
+                       VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="colIdCompte"  text="ID"           prefWidth="60"/>
+                    <TableColumn fx:id="colUsername"   text="Identifiant"  prefWidth="200"/>
+                    <TableColumn fx:id="colRoleCompte" text="Rôle"         prefWidth="150"/>
+                </columns>
+                <placeholder>
+                    <Label text="Aucun gestionnaire trouvé." styleClass="label-muted"/>
+                </placeholder>
+            </TableView>
+        </VBox>
+    </center>
+
+    <!-- FORMULAIRE DROIT -->
+    <right>
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER"
+                    style="-fx-background-color: white; -fx-border-color: #dee2e6; -fx-border-width: 0 0 0 1;">
+            <VBox spacing="12" prefWidth="260"
+                  style="-fx-background-color: white; -fx-padding: 20;">
+
+                <Label text="Ajouter un gestionnaire" styleClass="label-subtitle"/>
+                <Separator/>
+
+                <Label text="Identifiant *" styleClass="label-champ"/>
+                <TextField fx:id="champUsername"
+                           promptText="Identifiant de connexion"
+                           styleClass="text-field-modern"/>
+
+                <Label text="Mot de passe *" styleClass="label-champ"/>
+                <PasswordField fx:id="champPassword"
+                               promptText="Mot de passe"
+                               styleClass="password-field-modern"/>
+
+                <Label fx:id="labelMessage"
+                       text=""
+                       wrapText="true"
+                       style="-fx-min-height: 20px;"/>
+
+                <Button text="  Ajouter"
+                        styleClass="btn-success"
+                        onAction="#handleAjouter"
+                        prefWidth="Infinity"
+                        style="-fx-padding: 9 0 9 0;">
+                    <VBox.margin><Insets top="6"/></VBox.margin>
+                </Button>
+
+                <Button text="  Supprimer sélectionné"
+                        styleClass="btn-danger"
+                        onAction="#handleSupprimer"
+                        prefWidth="Infinity"
+                        style="-fx-padding: 9 0 9 0;"/>
+
+            </VBox>
+        </ScrollPane>
+    </right>
+
+</BorderPane>
