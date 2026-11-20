@@ -17,7 +17,7 @@ public class FilmService {
         this.filmDao = filmDao;
     }
 
-    // constructeur par défaut (base PostgreSQL)
+    // constructeur par défaut 
     public FilmService() {
         this.filmDao = new FilmDaoImpl();
     }
@@ -50,7 +50,7 @@ public class FilmService {
 
     // ---------- Ajout ----------
 
-    // ajout sans note (la note vaut 0)
+  
     public boolean ajouterFilm(String titre, String genre, String dureeStr, String synopsis)
             throws ValidationException {
         return ajouterFilm(titre, genre, dureeStr, "0", synopsis);
@@ -76,7 +76,7 @@ public class FilmService {
 
     // ---------- Modification ----------
 
-    // modification sans toucher à la note (on garde l'ancienne)
+    // modification sans toucher à la note 
     public boolean modifierFilm(int id, String titre, String genre, String dureeStr, String synopsis)
             throws ValidationException, FilmIntrouvable {
 
@@ -160,7 +160,7 @@ public class FilmService {
         }
     }
 
-    // accepte "135", "2h15", "2h", "2:15" et renvoie la durée en minutes
+    //duree des films
     public int validerEtConvertirDuree(String dureeStr) throws ValidationException {
         if (dureeStr == null || dureeStr.trim().isEmpty()) {
             throw new ValidationException("La durée est obligatoire.");
@@ -172,13 +172,13 @@ public class FilmService {
 
         try {
             if (texte.contains(":")) {
-                // format 2:15
+
                 String[] parties = texte.split(":");
                 heures = Integer.parseInt(parties[0].trim());
                 minutes = Integer.parseInt(parties[1].trim());
 
             } else if (texte.contains("h")) {
-                // format 2h15
+                
                 String[] parties = texte.split("h");
                 heures = Integer.parseInt(parties[0].trim());
 

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.Button?>
+<?import javafx.geometry.Insets?>
+
+<!-- Vue de connexion — CinéTrack -->
+<!-- Contrôleur : controlleur.fx.ConnexionFxController -->
+<BorderPane xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controlleur.fx.ConnexionFxController"
+            prefWidth="440" prefHeight="560"
+            stylesheets="@../css/style.css"
+            style="-fx-background-color: #f8f9fa;">
+
+    <!-- EN-TÊTE ROUGE -->
+    <top>
+        <VBox styleClass="connexion-header" alignment="CENTER">
+            <Label text="CinéTrack" styleClass="connexion-titre"/>
+            <Label text="Backoffice Cinéma" styleClass="label-muted"
+                   style="-fx-text-fill: rgba(255,255,255,0.75); -fx-font-size: 13px;"/>
+        </VBox>
+    </top>
+
+    <!-- ZONE CENTRALE : formulaire -->
+    <center>
+        <VBox alignment="CENTER" spacing="0"
+              style="-fx-background-color: #f8f9fa;">
+
+            <!-- Carte formulaire -->
+            <VBox styleClass="connexion-card" spacing="14"
+                  alignment="TOP_LEFT"
+                  style="-fx-pref-width: 340px; -fx-max-width: 340px;">
+                <VBox.margin>
+                    <Insets top="30" bottom="30"/>
+                </VBox.margin>
+
+                <!-- Champ Nom d'utilisateur -->
+                <Label text="Nom d'utilisateur" styleClass="label-champ"/>
+                <TextField fx:id="fieldUsername"
+                           promptText="Entrez votre identifiant"
+                           styleClass="text-field-modern"
+                           onAction="#handleSeConnecter"/>
+
+                <!-- Champ Mot de passe -->
+                <Label text="Mot de passe" styleClass="label-champ"
+                       style="-fx-padding: 6 0 0 0;"/>
+                <PasswordField fx:id="fieldPassword"
+                               promptText="Entrez votre mot de passe"
+                               styleClass="password-field-modern"
+                               onAction="#handleSeConnecter"/>
+
+                <!-- Message d'erreur  -->
+                <Label fx:id="labelErreur"
+                       styleClass="label-erreur"
+                       text=""
+                       wrapText="true"
+                       style="-fx-min-height: 20px;"/>
+
+                <!-- Bouton Se connecter -->
+                <Button fx:id="buttonSeConnecter"
+                        text="SE CONNECTER"
+                        styleClass="btn-primary"
+                        onAction="#handleSeConnecter"
+                        prefWidth="Infinity"
+                        style="-fx-padding: 12 0 12 0; -fx-font-size: 15px;">
+                    <VBox.margin>
+                        <Insets top="8"/>
+                    </VBox.margin>
+                </Button>
+
+                <!-- Mention version -->
+                <Label text="CinéTrack v2.0"
+                       styleClass="label-muted"
+                       alignment="CENTER"
+                       prefWidth="Infinity"
+                       style="-fx-font-size: 11px; -fx-text-alignment: center;"/>
+            </VBox>
+        </VBox>
+    </center>
+
+</BorderPane>

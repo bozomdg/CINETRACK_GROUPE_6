@@ -3,13 +3,7 @@
     "configurations": [
         {
             "type": "java",
-            "name": "CinéTrack (JavaFX)",
-            "request": "launch",
-            "mainClass": "main.AppLauncher"
-        },
-        {
-            "type": "java",
-            "name": "CinéTrack (Swing - Secours)",
+            "name": "CinéTrack",
             "request": "launch",
             "mainClass": "main.Main"
         }

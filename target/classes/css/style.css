@@ -1,0 +1,350 @@
+/* ---------- Variables globales  ---------- */
+.root {
+    -fx-primary: #dc143c;
+    -fx-accent: #4682b4;
+    -fx-bg-light: #f8f9fa;
+    -fx-bg-dark: #212529;
+    -fx-text-dark: #343a40;
+    -fx-text-muted: #6c757d;
+    -fx-border: #dee2e6;
+    -fx-white: #ffffff;
+    -fx-font-family: "Segoe UI", Arial, sans-serif;
+    -fx-background-color: -fx-bg-light;
+}
+
+/*  BOUTONS */
+
+/* Bouton primaire  */
+.btn-primary {
+    -fx-background-color: #dc143c;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 10 24 10 24;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(220, 20, 60, 0.3), 6, 0, 0, 2);
+}
+
+.btn-primary:hover {
+    -fx-background-color: #b01030;
+    -fx-effect: dropshadow(gaussian, rgba(220, 20, 60, 0.5), 10, 0, 0, 3);
+}
+
+.btn-primary:pressed {
+    -fx-background-color: #8b0c24;
+}
+
+/* Bouton succès (vert) */
+.btn-success {
+    -fx-background-color: #28a745;
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-padding: 8 18 8 18;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+}
+
+.btn-success:hover {
+    -fx-background-color: #218838;
+}
+
+.btn-success:pressed {
+    -fx-background-color: #1e7e34;
+}
+
+/* Bouton danger (rouge foncé) */
+.btn-danger {
+    -fx-background-color: #dc3545;
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-padding: 8 18 8 18;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+}
+
+.btn-danger:hover {
+    -fx-background-color: #c82333;
+}
+
+.btn-danger:pressed {
+    -fx-background-color: #bd2130;
+}
+
+/* Bouton avertissement (orange) */
+.btn-warning {
+    -fx-background-color: #ffc107;
+    -fx-text-fill: #212529;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-padding: 8 18 8 18;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+}
+
+.btn-warning:hover {
+    -fx-background-color: #e0a800;
+}
+
+/* Bouton secondaire (gris) */
+.btn-secondary {
+    -fx-background-color: #6c757d;
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-padding: 8 18 8 18;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+}
+
+.btn-secondary:hover {
+    -fx-background-color: #5a6268;
+}
+
+/* =====================================================
+   CHAMPS DE SAISIE
+   ===================================================== */
+.text-field-modern,
+.password-field-modern {
+    -fx-background-color: white;
+    -fx-border-color: #ced4da;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 10 14 10 14;
+    -fx-font-size: 14px;
+    -fx-pref-height: 42px;
+}
+
+.text-field-modern:focused,
+.password-field-modern:focused {
+    -fx-border-color: #dc143c;
+    -fx-effect: dropshadow(gaussian, rgba(220, 20, 60, 0.2), 6, 0, 0, 0);
+}
+
+/* =====================================================
+   BARRE LATÉRALE (Sidebar)
+   ===================================================== */
+.sidebar {
+    -fx-background-color: #212529;
+    -fx-pref-width: 220px;
+    -fx-spacing: 4;
+    -fx-padding: 16 0 16 0;
+}
+
+/* Bouton de navigation dans la sidebar */
+.sidebar-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #adb5bd;
+    -fx-font-size: 14px;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 12 20 12 20;
+    -fx-pref-width: 220px;
+    -fx-cursor: hand;
+    -fx-background-radius: 0;
+}
+
+.sidebar-btn:hover {
+    -fx-background-color: #343a40;
+    -fx-text-fill: white;
+}
+
+/* Bouton actif dans la sidebar */
+.sidebar-btn-active {
+    -fx-background-color: #dc143c;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 12 20 12 20;
+    -fx-pref-width: 220px;
+    -fx-cursor: hand;
+    -fx-background-radius: 0;
+}
+
+/* Titre de section dans la sidebar */
+.sidebar-title {
+    -fx-text-fill: #6c757d;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-padding: 16 20 6 20;
+}
+
+/* =====================================================
+   EN-TÊTE DE L'APPLICATION
+   ===================================================== */
+.header {
+    -fx-background-color: #dc143c;
+    -fx-padding: 14 20 14 20;
+    -fx-alignment: CENTER_LEFT;
+    -fx-spacing: 10;
+}
+
+.header-title {
+    -fx-text-fill: white;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+}
+
+.header-info {
+    -fx-text-fill: rgba(255, 255, 255, 0.85);
+    -fx-font-size: 13px;
+}
+
+/* =====================================================
+   TABLEAU (TableView)
+   ===================================================== */
+.table-view {
+    -fx-background-color: white;
+    -fx-border-color: #dee2e6;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-table-cell-border-color: transparent;
+}
+
+.table-view .column-header {
+    -fx-background-color: #f8f9fa;
+    -fx-border-color: #dee2e6;
+    -fx-padding: 10 8 10 8;
+}
+
+.table-view .column-header .label {
+    -fx-font-weight: bold;
+    -fx-text-fill: #495057;
+    -fx-font-size: 13px;
+}
+
+.table-row-cell {
+    -fx-cell-size: 42px;
+}
+
+.table-row-cell:selected {
+    -fx-background-color: rgba(220, 20, 60, 0.12);
+}
+
+.table-row-cell:selected .text {
+    -fx-fill: #212529;
+}
+
+.table-row-cell:odd {
+    -fx-background-color: #fdfdfd;
+}
+
+.table-row-cell:even {
+    -fx-background-color: white;
+}
+
+.table-row-cell:hover {
+    -fx-background-color: rgba(220, 20, 60, 0.06);
+}
+
+/* =====================================================
+   CARTE (Card) — panneau formulaire
+   ===================================================== */
+.card {
+    -fx-background-color: white;
+    -fx-border-color: #dee2e6;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 20;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.08), 8, 0, 0, 2);
+}
+
+/* =====================================================
+   LABELS
+   ===================================================== */
+.label-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #212529;
+}
+
+.label-subtitle {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #343a40;
+}
+
+.label-muted {
+    -fx-font-size: 12px;
+    -fx-text-fill: #6c757d;
+}
+
+.label-erreur {
+    -fx-font-size: 13px;
+    -fx-text-fill: #dc143c;
+    -fx-font-weight: bold;
+}
+
+.label-succes {
+    -fx-font-size: 13px;
+    -fx-text-fill: #28a745;
+    -fx-font-weight: bold;
+}
+
+/* =====================================================
+   CONNEXION — écran de login
+   ===================================================== */
+.connexion-header {
+    -fx-background-color: #dc143c;
+    -fx-padding: 40 0 40 0;
+    -fx-alignment: CENTER;
+    -fx-pref-height: 140px;
+}
+
+.connexion-titre {
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+.connexion-card {
+    -fx-background-color: white;
+    -fx-padding: 36 40 36 40;
+    -fx-spacing: 16;
+    -fx-alignment: TOP_LEFT;
+    -fx-pref-width: 340px;
+    -fx-background-radius: 10;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.12), 16, 0, 0, 4);
+}
+
+.label-champ {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #495057;
+}
+
+/* =====================================================
+   COMBOBOX
+   ===================================================== */
+.combo-box {
+    -fx-background-color: white;
+    -fx-border-color: #ced4da;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 4 8 4 8;
+    -fx-font-size: 13px;
+}
+
+.combo-box:focused {
+    -fx-border-color: #dc143c;
+}
+
+/* =====================================================
+   SCROLLBAR
+   ===================================================== */
+.scroll-bar:vertical .thumb,
+.scroll-bar:horizontal .thumb {
+    -fx-background-color: #adb5bd;
+    -fx-background-radius: 4;
+}
+
+.scroll-bar:vertical .thumb:hover,
+.scroll-bar:horizontal .thumb:hover {
+    -fx-background-color: #6c757d;
+}
+
+.scroll-bar .track {
+    -fx-background-color: #f8f9fa;
+}
