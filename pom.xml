@@ -22,14 +22,14 @@
     </properties>
 
     <dependencies>
-        <!-- JavaFX Controls (TableView, Buttons, Labels, etc.) -->
+        <!-- JavaFX Controls  -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
             <version>${javafx.version}</version>
         </dependency>
 
-        <!-- JavaFX FXML (Chargement des interfaces FXML) -->
+        <!-- JavaFX FXML -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
@@ -67,7 +67,6 @@
         </resources>
 
         <plugins>
-            <!-- Compilateur Java 21 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -78,13 +77,13 @@
                 </configuration>
             </plugin>
 
-            <!-- Plugin JavaFX pour lancer l'application avec 'mvn javafx:run' -->
+            <!-- Plugin JavaFX pour lancer l'application  -->
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>0.0.8</version>
                 <configuration>
-                    <mainClass>main.MainApp</mainClass>
+                    <mainClass>main.Main</mainClass>
                 </configuration>
             </plugin>
         </plugins>

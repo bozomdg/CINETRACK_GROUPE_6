@@ -110,7 +110,7 @@ INSERT INTO tarif (prix, categorie) VALUES
 (200.00, 'ENFANT'),
 (250.00, 'SENIOR');
 
--- Séances (place_dispo = capacité - places réservées confirmées)
+-- Séances 
 INSERT INTO seance (date_seance, heure_debut, place_dispo, id_film, id_salle) VALUES
 ('2026-11-10', '14:00', 144, 1, 1),   
 ('2026-11-10', '18:00',  97, 2, 2),   
