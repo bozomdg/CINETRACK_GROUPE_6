@@ -76,6 +76,11 @@
                                promptText="Mot de passe"
                                styleClass="password-field-modern"/>
 
+                <Label text="Rôle *" styleClass="label-champ"/>
+                <ComboBox fx:id="comboRole"
+                          prefWidth="Infinity"
+                          styleClass="combo-box"/>
+
                 <Label fx:id="labelMessage"
                        text=""
                        wrapText="true"

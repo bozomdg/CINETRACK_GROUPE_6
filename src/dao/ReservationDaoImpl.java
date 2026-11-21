@@ -21,9 +21,10 @@ public class ReservationDaoImpl implements ReservationDaoInterface {
     public List<Reservation> findBySeance(int idSeance) {
         List<Reservation> liste = new ArrayList<>();
         String sql = "SELECT r.id_reservation, r.id_seance, c.nom_client, c.prenom AS prenom_client, "
-                   + "r.nb_place AS nb_places, r.id_client "
+                   + "r.nb_place AS nb_places, t.categorie::text AS cat_tarif, (r.nb_place * t.prix) AS montant, r.id_client "
                    + "FROM reservation r "
                    + "JOIN client c ON r.id_client = c.id_client "
+                   + "JOIN tarif t ON r.id_tarif = t.id_tarif "
                    + "WHERE r.id_seance = ? "
                    + "ORDER BY r.id_reservation DESC";
 
@@ -43,6 +44,8 @@ public class ReservationDaoImpl implements ReservationDaoInterface {
                         new Timestamp(System.currentTimeMillis()),
                         rs.getInt("id_client"),
                         "client");
+                r.setCategorieTarif(rs.getString("cat_tarif"));
+                r.setMontantTotal(rs.getDouble("montant"));
                 liste.add(r);
             }
 
@@ -130,14 +133,27 @@ public class ReservationDaoImpl implements ReservationDaoInterface {
                 ps3.close();
             }
 
-            // 4. Chercher un tarif (1 par défaut)
+            // 4. Chercher le tarif choisi (NORMAL, ETUDIANT, ENFANT, SENIOR)
             int idTarif = 1;
-            PreparedStatement ps4 = con.prepareStatement("SELECT id_tarif FROM tarif LIMIT 1");
-            ResultSet rs4 = ps4.executeQuery();
-            if (rs4.next()) {
-                idTarif = rs4.getInt("id_tarif");
+            String cat = (r.getCategorieTarif() != null && !r.getCategorieTarif().trim().isEmpty())
+                         ? r.getCategorieTarif().trim().toUpperCase() : "NORMAL";
+            try {
+                PreparedStatement ps4 = con.prepareStatement(
+                    "SELECT id_tarif FROM tarif WHERE categorie = ?::categorie_tarif"
+                );
+                ps4.setString(1, cat);
+                ResultSet rs4 = ps4.executeQuery();
+                if (rs4.next()) {
+                    idTarif = rs4.getInt("id_tarif");
+                }
+                ps4.close();
+            } catch (SQLException ex) {
+                // Secours si la catégorie ne correspond pas
+                PreparedStatement psFallback = con.prepareStatement("SELECT id_tarif FROM tarif LIMIT 1");
+                ResultSet rsFb = psFallback.executeQuery();
+                if (rsFb.next()) idTarif = rsFb.getInt("id_tarif");
+                psFallback.close();
             }
-            ps4.close();
 
             // 5. Enregistrer la réservation
             String sqlReservation = "INSERT INTO reservation (nb_place, statut, id_client, id_seance, id_tarif) "

@@ -42,6 +42,7 @@ public class SeanceFxController implements Initializable {
     @FXML private TextField   champNomClient;
     @FXML private TextField   champPrenomClient;
     @FXML private TextField   champNbPlaces;
+    @FXML private ComboBox<String> comboTarif;
 
     @FXML private Label       labelTitreFormulaire;
     @FXML private Label       labelMessage;
@@ -94,6 +95,17 @@ public class SeanceFxController implements Initializable {
                 }
             }
         });
+
+        // Initialisation de la liste des tarifs
+        if (comboTarif != null) {
+            comboTarif.setItems(FXCollections.observableArrayList(
+                "NORMAL (350 Rs)",
+                "ETUDIANT (250 Rs)",
+                "ENFANT (200 Rs)",
+                "SENIOR (250 Rs)"
+            ));
+            comboTarif.getSelectionModel().selectFirst();
+        }
 
         chargerSeances();
     }
@@ -235,17 +247,27 @@ public class SeanceFxController implements Initializable {
         String prenom = champPrenomClient.getText().trim();
         String nbPlaces = champNbPlaces.getText().trim();
 
+        // Récupération de la catégorie tarifaire sélectionnée
+        String catChoisie = "NORMAL";
+        String valTarif = comboTarif != null ? comboTarif.getValue() : null;
+        if (valTarif != null) {
+            if (valTarif.contains("ETUDIANT")) catChoisie = "ETUDIANT";
+            else if (valTarif.contains("ENFANT")) catChoisie = "ENFANT";
+            else if (valTarif.contains("SENIOR")) catChoisie = "SENIOR";
+        }
+
         if (compteConnecte == null) {
             compteConnecte = new modele.Compte(1, "gestionnaire", "", "gestionnaire");
         }
 
         try {
-            boolean succes = seanceService.reserverPlaces(idSeanceSelectionne, nom, prenom, nbPlaces, compteConnecte);
+            boolean succes = seanceService.reserverPlaces(idSeanceSelectionne, nom, prenom, nbPlaces, catChoisie, compteConnecte);
             if (succes) {
-                afficherMessage("✔ Réservation effectuée pour " + prenom + " " + nom + " !", false);
+                afficherMessage("✔ Réservation (" + catChoisie + ") effectuée pour " + prenom + " " + nom + " !", false);
                 champNomClient.clear();
                 champPrenomClient.clear();
                 champNbPlaces.clear();
+                if (comboTarif != null) comboTarif.getSelectionModel().selectFirst();
                 chargerSeances(); // Met à jour le nombre de places restantes
             } else {
                 afficherMessage("Échec de la réservation.", true);
@@ -274,13 +296,16 @@ public class SeanceFxController implements Initializable {
             }
 
             StringBuilder sb = new StringBuilder();
-            sb.append(String.format("%-6s | %-20s | %-8s\n", "ID Res", "Client", "Places"));
-            sb.append("------------------------------------------\n");
+            sb.append(String.format("%-6s | %-16s | %-6s | %-9s | %s\n", "ID Res", "Client", "Places", "Tarif", "Montant"));
+            sb.append("----------------------------------------------------------------\n");
             for (modele.Reservation r : reservations) {
-                sb.append(String.format("#%-5d | %-20s | %-8d\n",
+                String cat = r.getCategorieTarif() != null ? r.getCategorieTarif() : "NORMAL";
+                sb.append(String.format("#%-5d | %-16s | %-6d | %-9s | %.2f Rs\n",
                     r.getIdReservation(),
                     r.getPrenomClient() + " " + r.getNomClient(),
-                    r.getNbPlaces()));
+                    r.getNbPlaces(),
+                    cat,
+                    r.getMontantTotal()));
             }
 
             Alert alert = new Alert(Alert.AlertType.INFORMATION);

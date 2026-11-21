@@ -17,6 +17,9 @@ public class Reservation {
     // Traçabilité
     private int idCompte;
     private String roleCompte;
+    // Tarif
+    private String categorieTarif;
+    private double montantTotal;
 
     public Reservation() {}
 
@@ -28,6 +31,7 @@ public class Reservation {
         this.nbPlaces = nbPlaces;
         this.idCompte = idCompte;
         this.roleCompte = roleCompte;
+        this.categorieTarif = "NORMAL";
     }
 
     public Reservation(int idReservation, int idSeance, String nomClient, String prenomClient,
@@ -40,6 +44,7 @@ public class Reservation {
         this.dateReservation = dateReservation;
         this.idCompte = idCompte;
         this.roleCompte = roleCompte;
+        this.categorieTarif = "NORMAL";
     }
 
     // Getters
@@ -51,6 +56,8 @@ public class Reservation {
     public Timestamp getDateReservation() { return dateReservation; }
     public int getIdCompte() { return idCompte; }
     public String getRoleCompte() { return roleCompte; }
+    public String getCategorieTarif() { return categorieTarif; }
+    public double getMontantTotal() { return montantTotal; }
 
     // Setters
     public void setIdReservation(int id) { this.idReservation = id; }
@@ -61,6 +68,8 @@ public class Reservation {
     public void setDateReservation(Timestamp date) { this.dateReservation = date; }
     public void setIdCompte(int id) { this.idCompte = id; }
     public void setRoleCompte(String role) { this.roleCompte = role; }
+    public void setCategorieTarif(String cat) { this.categorieTarif = cat; }
+    public void setMontantTotal(double montant) { this.montantTotal = montant; }
 
     @Override
     public String toString() {

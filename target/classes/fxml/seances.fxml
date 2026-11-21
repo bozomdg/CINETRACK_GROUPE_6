@@ -12,6 +12,10 @@
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
 
 <!-- Vue gestion des séances — CinéTrack -->
 <!-- Contrôleur : controlleur.fx.SeanceFxController -->
@@ -163,6 +167,11 @@
                 <TextField fx:id="champNbPlaces"
                            promptText="Ex: 2"
                            styleClass="text-field-modern"/>
+
+                <Label text="Tarif / Statut client *" styleClass="label-champ"/>
+                <ComboBox fx:id="comboTarif"
+                          prefWidth="Infinity"
+                          styleClass="combo-box"/>
 
                 <Button text="  Confirmer la réservation"
                         styleClass="btn-primary"
