@@ -17,7 +17,8 @@ public class CompteDaoImpl implements CompteDaoInterface {
     public Compte findByUsernameAndPassword(String usernameOrEmail, String password) {
         String sql = "SELECT id_user, email, role::text FROM utilisateur "
                 + "WHERE (LOWER(email) = LOWER(?) OR LOWER(split_part(email, '@', 1)) = LOWER(?)) "
-                + "AND mot_de_passe = crypt(?, mot_de_passe)";
+                + "AND mot_de_passe = crypt(?, mot_de_passe) "
+                + "AND is_deleted = FALSE";
 
         Compte compte = null;
 
@@ -66,7 +67,7 @@ public class CompteDaoImpl implements CompteDaoInterface {
     public List<Compte> findAllGestionnaires() {
         List<Compte> liste = new ArrayList<>();
         String sql = "SELECT id_user, email, role::text FROM utilisateur "
-                + "WHERE role IN ('CAISSIER', 'MANAGER') ORDER BY id_user";
+                + "WHERE role IN ('CAISSIER', 'MANAGER') AND is_deleted = FALSE ORDER BY id_user";
 
         try {
             Connection con = DatabaseConnection.getConnection();
@@ -149,7 +150,7 @@ public class CompteDaoImpl implements CompteDaoInterface {
     // supprimer un personnel avec son id (sauf admin)
     @Override
     public boolean deleteGestionnaire(int id) {
-        String sql = "DELETE FROM utilisateur WHERE id_user = ? AND role != 'ADMINISTRATEUR'";
+        String sql = "UPDATE utilisateur SET is_deleted = TRUE WHERE id_user = ? AND role != 'ADMINISTRATEUR'";
         boolean ok = false;
 
         try {

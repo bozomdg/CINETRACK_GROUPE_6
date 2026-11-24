@@ -20,17 +20,19 @@ CREATE TYPE categorie_tarif AS ENUM ('NORMAL', 'ETUDIANT', 'ENFANT', 'SENIOR');
 
 
 CREATE TABLE film (
-    id_film   SERIAL       PRIMARY KEY,
-    titre     VARCHAR(150) NOT NULL,
-    genre     VARCHAR(50)  NOT NULL,
-    duree     INT          NOT NULL CHECK (duree > 0),     
-    synopsis  TEXT
+    id_film    SERIAL       PRIMARY KEY,
+    titre      VARCHAR(150) NOT NULL,
+    genre      VARCHAR(50)  NOT NULL,
+    duree      INT          NOT NULL CHECK (duree > 0),     
+    synopsis   TEXT,
+    is_deleted BOOLEAN      NOT NULL DEFAULT FALSE
 );
 
 CREATE TABLE salle (
     id_salle        SERIAL      PRIMARY KEY,
     nom_salle       VARCHAR(50) NOT NULL UNIQUE,
-    capacite_salle  INT         NOT NULL CHECK (capacite_salle > 0)
+    capacite_salle  INT         NOT NULL CHECK (capacite_salle > 0),
+    is_deleted      BOOLEAN     NOT NULL DEFAULT FALSE
 );
 
 CREATE TABLE seance (
@@ -40,6 +42,7 @@ CREATE TABLE seance (
     place_dispo  INT    NOT NULL CHECK (place_dispo >= 0),
     id_film      INT    NOT NULL REFERENCES film(id_film)   ON DELETE RESTRICT,
     id_salle     INT    NOT NULL REFERENCES salle(id_salle) ON DELETE RESTRICT,
+    is_deleted   BOOLEAN NOT NULL DEFAULT FALSE,
     -- une salle ne peut pas avoir 2 séances au même moment
     CONSTRAINT uq_salle_horaire UNIQUE (id_salle, date_seance, heure_debut)
 );
@@ -72,7 +75,8 @@ CREATE TABLE utilisateur (
     id_user       SERIAL       PRIMARY KEY,
     email         VARCHAR(120) NOT NULL UNIQUE,
     mot_de_passe  VARCHAR(100) NOT NULL,        
-    role          role_user    NOT NULL
+    role          role_user    NOT NULL,
+    is_deleted    BOOLEAN      NOT NULL DEFAULT FALSE
 );
 
 CREATE TABLE log (
@@ -152,11 +156,12 @@ INSERT INTO log (action, id_user) VALUES
 
 
 
--- 1) Planning des séances
+-- 1) Planning des séances actives
 SELECT s.id_seance, f.titre, sa.nom_salle, s.date_seance, s.heure_debut, s.place_dispo
 FROM seance s
 JOIN film  f  ON f.id_film   = s.id_film
 JOIN salle sa ON sa.id_salle = s.id_salle
+WHERE s.is_deleted = FALSE AND f.is_deleted = FALSE AND sa.is_deleted = FALSE
 ORDER BY s.date_seance, s.heure_debut;
 
 -- 2) Réservations avec montant total
@@ -169,10 +174,11 @@ JOIN film   f ON f.id_film   = s.id_film
 JOIN tarif  t ON t.id_tarif  = r.id_tarif
 ORDER BY r.id_reservation;
 
--- 3) Vérification de l'authentification 
+-- 3) Vérification de l'authentification (compte actif)
 SELECT id_user, email, role
 FROM utilisateur
 WHERE email = 'admin@cinetrack.com'
+  AND is_deleted = FALSE
   AND mot_de_passe = crypt('admin123', mot_de_passe);
 
 -- 4) Statistiques : recettes par film (réservations confirmées)
@@ -184,3 +190,10 @@ JOIN tarif  t ON t.id_tarif  = r.id_tarif
 WHERE r.statut = 'CONFIRMEE'
 GROUP BY f.titre
 ORDER BY recette DESC;
+
+-- 5) Exemple de suppression logique (Soft Delete) :
+-- Au lieu d'un DELETE FROM qui ferait planter les contraintes de clés étrangères,
+-- on désactive l'enregistrement sans détruire l'historique :
+-- UPDATE film SET is_deleted = TRUE WHERE id_film = 1;
+-- UPDATE salle SET is_deleted = TRUE WHERE id_salle = 1;
+-- UPDATE utilisateur SET is_deleted = TRUE WHERE id_user = 3;

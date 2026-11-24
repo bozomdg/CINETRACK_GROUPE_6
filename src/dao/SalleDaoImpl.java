@@ -14,7 +14,7 @@ public class SalleDaoImpl implements SalleDaoInterface {
     @Override
     public List<Salle> findAll() {
         List<Salle> liste = new ArrayList<>();
-        String sql = "SELECT id_salle, nom_salle, capacite_salle FROM salle ORDER BY id_salle";
+        String sql = "SELECT id_salle, nom_salle, capacite_salle FROM salle WHERE is_deleted = FALSE ORDER BY id_salle";
 
         try (Connection con = DatabaseConnection.getConnection();
              Statement st = con.createStatement();
@@ -36,7 +36,7 @@ public class SalleDaoImpl implements SalleDaoInterface {
 
     @Override
     public Salle findById(int id) {
-        String sql = "SELECT id_salle, nom_salle, capacite_salle FROM salle WHERE id_salle = ?";
+        String sql = "SELECT id_salle, nom_salle, capacite_salle FROM salle WHERE id_salle = ? AND is_deleted = FALSE";
 
         try (Connection con = DatabaseConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -92,7 +92,7 @@ public class SalleDaoImpl implements SalleDaoInterface {
 
     @Override
     public boolean delete(int id) {
-        String sql = "DELETE FROM salle WHERE id_salle = ?";
+        String sql = "UPDATE salle SET is_deleted = TRUE WHERE id_salle = ?";
 
         try (Connection con = DatabaseConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {

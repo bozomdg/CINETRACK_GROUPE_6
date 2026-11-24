@@ -12,6 +12,9 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 
 <!-- Vue gestion des gestionnaires — CinéTrack (Admin uniquement) -->

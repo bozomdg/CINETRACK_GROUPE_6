@@ -1,7 +1,5 @@
 package dao;
 
-import connexion.DatabaseConnection;
-import exception.FilmIntrouvable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -9,6 +7,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+
+import connexion.DatabaseConnection;
+import exception.FilmIntrouvable;
 import modele.Film;
 
 /**
@@ -19,7 +20,7 @@ public class FilmDaoImpl implements FilmDaoInterface {
     @Override
     public List<Film> findAll() {
         List<Film> liste = new ArrayList<>();
-        String sql = "SELECT id_film, titre, genre, duree, synopsis FROM film ORDER BY id_film";
+        String sql = "SELECT id_film, titre, genre, duree, synopsis FROM film WHERE is_deleted = FALSE ORDER BY id_film";
 
         try (Connection con = DatabaseConnection.getConnection();
              Statement  st  = con.createStatement();
@@ -46,7 +47,7 @@ public class FilmDaoImpl implements FilmDaoInterface {
 
     @Override
     public Film findById(int id) {
-        String sql = "SELECT id_film, titre, genre, duree, synopsis FROM film WHERE id_film = ?";
+        String sql = "SELECT id_film, titre, genre, duree, synopsis FROM film WHERE id_film = ? AND is_deleted = FALSE";
 
         try (Connection con = DatabaseConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -76,7 +77,7 @@ public class FilmDaoImpl implements FilmDaoInterface {
     @Override
     public List<Film> findByGenre(String genre) {
         List<Film> liste = new ArrayList<>();
-        String sql = "SELECT id_film, titre, genre, duree, synopsis FROM film WHERE genre = ? ORDER BY id_film";
+        String sql = "SELECT id_film, titre, genre, duree, synopsis FROM film WHERE genre = ? AND is_deleted = FALSE ORDER BY id_film";
 
         try (Connection con = DatabaseConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -148,9 +149,7 @@ public class FilmDaoImpl implements FilmDaoInterface {
 
     @Override
     public boolean delete(int id) {
-        findById(id);  
-
-        String sql = "DELETE FROM film WHERE id_film = ?";
+        String sql = "UPDATE film SET is_deleted = TRUE WHERE id_film = ?";
 
         try (Connection con = DatabaseConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {

@@ -31,7 +31,7 @@ public class SeanceDaoImpl implements SeanceDaoInterface {
     @Override
     public List<Seance> findAll() {
         List<Seance> liste = new ArrayList<>();
-        String sql = "SELECT * FROM seance ORDER BY date_seance, heure_debut";
+        String sql = "SELECT * FROM seance WHERE is_deleted = FALSE ORDER BY date_seance, heure_debut";
 
         try {
             Connection con = DatabaseConnection.getConnection();
@@ -58,7 +58,7 @@ public class SeanceDaoImpl implements SeanceDaoInterface {
     @Override
     public List<Seance> findByFilm(int idFilm) {
         List<Seance> liste = new ArrayList<>();
-        String sql = "SELECT * FROM seance WHERE id_film = ? ORDER BY date_seance, heure_debut";
+        String sql = "SELECT * FROM seance WHERE id_film = ? AND is_deleted = FALSE ORDER BY date_seance, heure_debut";
 
         try {
             Connection con = DatabaseConnection.getConnection();
@@ -87,7 +87,7 @@ public class SeanceDaoImpl implements SeanceDaoInterface {
     @Override
     public List<Seance> findByDate(String date) {
         List<Seance> liste = new ArrayList<>();
-        String sql = "SELECT * FROM seance WHERE date_seance = ? ORDER BY heure_debut";
+        String sql = "SELECT * FROM seance WHERE date_seance = ? AND is_deleted = FALSE ORDER BY heure_debut";
 
         try {
             Connection con = DatabaseConnection.getConnection();
@@ -156,7 +156,7 @@ public class SeanceDaoImpl implements SeanceDaoInterface {
     // supprimer une seance avec son id
     @Override
     public boolean delete(int id) {
-        String sql = "DELETE FROM seance WHERE id_seance = ?";
+        String sql = "UPDATE seance SET is_deleted = TRUE WHERE id_seance = ?";
         boolean ok = false;
 
         try {
