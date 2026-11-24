@@ -1,16 +1,21 @@
+
 package service;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Set;
 
 import dao.ReservationDaoImpl;
 import dao.ReservationDaoInterface;
 import dao.SeanceDaoImpl;
+import dao.SalleDaoImpl;
+import dao.SalleDaoInterface;
 import dao.SeanceDaoInterface;
 import exception.SalleErreur;
 import exception.ValidationException;
 import modele.Compte;
 import modele.Reservation;
+import modele.Salle;
 import modele.Seance;
 
 /**
@@ -21,10 +26,12 @@ public class SeanceService {
 
     private SeanceDaoInterface seanceDAO;
     private ReservationDaoInterface reservationDAO;
+    private SalleDaoInterface salleDAO;
 
     public SeanceService() {
         this.seanceDAO = new SeanceDaoImpl();
         this.reservationDAO = new ReservationDaoImpl();
+        this.salleDAO = new SalleDaoImpl();
     }
 
     /** Retourne toutes les séances */
@@ -125,6 +132,48 @@ public class SeanceService {
         return reservationDAO.insert(r);
     }
 
+    /** Retourne la capacité d'une salle (nombre de places du plan) */
+    public int getCapaciteSalle(int idSalle) throws ValidationException {
+        Salle salle = salleDAO.findById(idSalle);
+        if (salle == null) {
+            throw new ValidationException("Salle introuvable.");
+        }
+        return salle.getCapacite();
+    }
+
+    /** Retourne les numéros de places déjà réservées pour une séance */
+    public Set<String> getPlacesOccupees(int idSeance) {
+        return reservationDAO.findPlacesOccupees(idSeance);
+    }
+
+    /** Réserve des places précises choisies sur le plan de salle */
+    public boolean reserverPlacesChoisies(int idSeance, String nom, String prenom,
+                                          List<String> places, Compte compteConnecte) throws ValidationException, SQLException {
+
+        if (idSeance <= 0) {
+            throw new ValidationException("Séance invalide.");
+        }
+        if (estVide(nom) || estVide(prenom)) {
+            throw new ValidationException("Nom et prénom du client obligatoires.");
+        }
+        if (places == null || places.isEmpty()) {
+            throw new ValidationException("Choisissez au moins une place sur le plan.");
+        }
+        if (compteConnecte == null) {
+            throw new ValidationException("Utilisateur non identifié pour cette réservation.");
+        }
+
+        Reservation r = new Reservation(
+                idSeance,
+                nom.trim(),
+                prenom.trim(),
+                places.size(),
+                compteConnecte.getId(),
+                compteConnecte.getRole());
+
+        return reservationDAO.insertAvecPlaces(r, places);
+    }
+
     /** Retourne les réservations d'une séance */
     public List<Reservation> getReservationsParSeance(int idSeance) {
         return reservationDAO.findBySeance(idSeance);
@@ -148,7 +197,7 @@ public class SeanceService {
 
     /** Vérifie les champs d'une séance et crée l'objet Seance */
     private Seance construireSeance(int idSeance, String idFilmStr, String idSalleStr,
-            String date, String heure, String placesStr) throws ValidationException {
+                                    String date, String heure, String placesStr) throws ValidationException {
 
         // Tous les champs doivent être remplis
         if (estVide(idFilmStr) || estVide(idSalleStr) || estVide(date) || estVide(heure) || estVide(placesStr)) {
@@ -171,7 +220,7 @@ public class SeanceService {
             throw new ValidationException("Le nombre de places doit être supérieur à 0.");
         }
 
-       
+
         String heureTrim = heure.trim();
         if (heureTrim.length() == 5) {
             heureTrim = heureTrim + ":00";
