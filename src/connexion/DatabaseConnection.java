@@ -12,7 +12,7 @@ public class DatabaseConnection {
     
     private static final String URL      = "jdbc:postgresql://localhost:5432/cinetrack";
     private static final String USERNAME = "postgres";
-    private static final String PASSWORD = "root";
+    private static final String PASSWORD = "nanah04";
 
     // Retourne une nouvelle connexion à chaque appel.
     public static Connection getConnection() throws SQLException {

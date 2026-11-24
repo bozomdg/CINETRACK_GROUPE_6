@@ -182,3 +182,21 @@ JOIN tarif  t ON t.id_tarif  = r.id_tarif
 WHERE r.statut = 'CONFIRMEE'
 GROUP BY f.titre
 ORDER BY recette DESC;
+
+
+-- ============================================================
+--  MIGRATION : plan de salle (choix des places)
+--  À exécuter UNE FOIS sur la base "cinetrack" (pgAdmin / psql)
+--  Ne supprime aucune donnée existante.
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS place_reservee (
+    id_place        SERIAL      PRIMARY KEY,
+    numero_place    VARCHAR(10) NOT NULL,                 -- ex : 'A1', 'C7'
+    id_seance       INT NOT NULL REFERENCES seance(id_seance)           ON DELETE CASCADE,
+    id_reservation  INT NOT NULL REFERENCES reservation(id_reservation) ON DELETE CASCADE,
+    -- une même place ne peut être réservée qu'une seule fois par séance
+    CONSTRAINT uq_place_seance UNIQUE (id_seance, numero_place)
+);
+
+CREATE INDEX IF NOT EXISTS idx_place_seance ON place_reservee(id_seance);
