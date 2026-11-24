@@ -77,7 +77,8 @@ public class FilmDaoImpl implements FilmDaoInterface {
     @Override
     public List<Film> findByGenre(String genre) {
         List<Film> liste = new ArrayList<>();
-        String sql = "SELECT id_film, titre, genre, duree, synopsis FROM film WHERE genre = ? AND is_deleted = FALSE ORDER BY id_film";
+        String sql = "SELECT id_film, titre, genre, duree, synopsis FROM film "
+                + "WHERE lower(genre) = lower(?) AND is_deleted = FALSE ORDER BY id_film";
 
         try (Connection con = DatabaseConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
