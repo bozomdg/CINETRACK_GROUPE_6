@@ -86,8 +86,14 @@ public class SeanceService {
         return true;
     }
 
-    /** Réserve des places pour un client */
+    /** Réserve des places pour un client (tarif par défaut NORMAL) */
     public boolean reserverPlaces(int idSeance, String nom, String prenom, String nbPlacesStr, Compte compteConnecte)
+            throws ValidationException, SQLException {
+        return reserverPlaces(idSeance, nom, prenom, nbPlacesStr, "NORMAL", compteConnecte);
+    }
+
+    /** Réserve des places pour un client avec catégorie tarifaire */
+    public boolean reserverPlaces(int idSeance, String nom, String prenom, String nbPlacesStr, String categorieTarif, Compte compteConnecte)
             throws ValidationException, SQLException {
 
         if (idSeance <= 0) {
@@ -121,6 +127,7 @@ public class SeanceService {
                 nbPlaces,
                 compteConnecte.getId(),
                 compteConnecte.getRole());
+        r.setCategorieTarif(categorieTarif != null ? categorieTarif : "NORMAL");
 
         return reservationDAO.insert(r);
     }

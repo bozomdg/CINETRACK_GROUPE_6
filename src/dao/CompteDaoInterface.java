@@ -16,5 +16,7 @@ public interface CompteDaoInterface {
 
     boolean insertGestionnaire(String usernameOrEmail, String password);
 
+    boolean insertGestionnaire(String usernameOrEmail, String password, String role);
+
     boolean deleteGestionnaire(int id);
 }

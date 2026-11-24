@@ -28,6 +28,7 @@ public class GestionnaireFxController implements Initializable {
 
     @FXML private TextField     champUsername;
     @FXML private PasswordField champPassword;
+    @FXML private ComboBox<String> comboRole;
     @FXML private Label         labelMessage;
 
     // ───── Service ────────────────────────────────────────────────────────
@@ -43,6 +44,9 @@ public class GestionnaireFxController implements Initializable {
             new SimpleStringProperty(data.getValue().getUsername()));
         colRoleCompte.setCellValueFactory(data ->
             new SimpleStringProperty(data.getValue().getRole()));
+
+        comboRole.setItems(FXCollections.observableArrayList("Caissier", "Manager"));
+        comboRole.getSelectionModel().selectFirst();
 
         chargerGestionnaires();
     }
@@ -70,6 +74,7 @@ public class GestionnaireFxController implements Initializable {
     private void handleAjouter() {
         String username = champUsername.getText().trim();
         String password = champPassword.getText();
+        String role = comboRole.getValue();
 
         if (username.isEmpty() || password.isEmpty()) {
             afficherMessage("Identifiant et mot de passe obligatoires.", true);
@@ -77,10 +82,11 @@ public class GestionnaireFxController implements Initializable {
         }
 
         try {
-            compteService.ajouterGestionnaire(username, password);
-            afficherMessage("✔ Gestionnaire '" + username + "' ajouté.", false);
+            compteService.ajouterGestionnaire(username, password, role);
+            afficherMessage("✔ Compte '" + username + "' (" + role + ") ajouté.", false);
             champUsername.clear();
             champPassword.clear();
+            comboRole.getSelectionModel().selectFirst();
             chargerGestionnaires();
         } catch (Exception e) {
             afficherMessage("Erreur : " + e.getMessage(), true);

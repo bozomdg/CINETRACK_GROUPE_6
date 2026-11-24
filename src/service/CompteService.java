@@ -56,9 +56,16 @@ public class CompteService {
     }
 
     /**
-     * Valide et ajoute un nouveau compte gestionnaire.
+     * Valide et ajoute un nouveau compte (rôle par défaut : caissier).
      */
     public boolean ajouterGestionnaire(String username, String password) throws ValidationException {
+        return ajouterGestionnaire(username, password, "caissier");
+    }
+
+    /**
+     * Valide et ajoute un nouveau compte avec son rôle (manager ou caissier).
+     */
+    public boolean ajouterGestionnaire(String username, String password, String role) throws ValidationException {
         if (username == null || username.trim().isEmpty() || password == null || password.trim().isEmpty()) {
             throw new ValidationException("Veuillez remplir tous les champs.");
         }
@@ -67,10 +74,11 @@ public class CompteService {
             throw new ValidationException("Le nom d'utilisateur doit contenir au moins 3 caractères.");
         }
 
-        Compte nouveau = new Compte(0, username.trim(), password.trim(), "gestionnaire");
+        String roleFinal = ("manager".equalsIgnoreCase(role)) ? "manager" : "caissier";
+        Compte nouveau = new Compte(0, username.trim(), password.trim(), roleFinal);
         boolean succes = compteDAO.insertGestionnaire(nouveau);
         if (!succes) {
-            throw new ValidationException("Erreur lors de l'ajout du gestionnaire (nom potentiellement déjà pris).");
+            throw new ValidationException("Erreur lors de l'ajout (nom potentiellement déjà pris).");
         }
         return true;
     }

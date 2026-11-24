@@ -7,14 +7,15 @@ DROP TABLE IF EXISTS client       CASCADE;
 DROP TABLE IF EXISTS utilisateur  CASCADE;
 DROP TABLE IF EXISTS salle        CASCADE;
 DROP TABLE IF EXISTS film         CASCADE;
+DROP TABLE IF EXISTS admins       CASCADE;
+DROP TABLE IF EXISTS gestionnaires CASCADE;
 DROP TYPE  IF EXISTS role_user;
 DROP TYPE  IF EXISTS categorie_tarif;
 
 -- Pour chiffrer les mots de passe (bcrypt)
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
-
-CREATE TYPE role_user       AS ENUM ('ADMINISTRATEUR', 'CAISSIER');
+CREATE TYPE role_user       AS ENUM ('ADMINISTRATEUR', 'MANAGER', 'CAISSIER');
 CREATE TYPE categorie_tarif AS ENUM ('NORMAL', 'ETUDIANT', 'ENFANT', 'SENIOR');
 
 
@@ -138,6 +139,7 @@ INSERT INTO reservation (nb_place, statut, id_client, id_seance, id_tarif) VALUE
 
 INSERT INTO utilisateur (email, mot_de_passe, role) VALUES
 ('admin@cinetrack.com',    crypt('admin123',    gen_salt('bf')), 'ADMINISTRATEUR'),
+('manager@cinetrack.com',  crypt('manager123',  gen_salt('bf')), 'MANAGER'),
 ('caissier@cinetrack.com', crypt('caissier123', gen_salt('bf')), 'CAISSIER'),
 ('caissier2@cinetrack.com',crypt('caissier123', gen_salt('bf')), 'CAISSIER');
 

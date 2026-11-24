@@ -41,8 +41,10 @@ public class CompteDaoImpl implements CompteDaoInterface {
                 String roleFinal;
                 if (role.equalsIgnoreCase("ADMINISTRATEUR")) {
                     roleFinal = "admin";
+                } else if (role.equalsIgnoreCase("MANAGER")) {
+                    roleFinal = "manager";
                 } else {
-                    roleFinal = "gestionnaire";
+                    roleFinal = "caissier";
                 }
 
                 compte = new Compte(id, email, "", roleFinal);
@@ -59,12 +61,12 @@ public class CompteDaoImpl implements CompteDaoInterface {
         return compte;
     }
 
-    // recuperer tous les gestionnaires (CAISSIER dans la base)
+    // recuperer tous les comptes du personnel (CAISSIER et MANAGER dans la base)
     @Override
     public List<Compte> findAllGestionnaires() {
         List<Compte> liste = new ArrayList<>();
         String sql = "SELECT id_user, email, role::text FROM utilisateur "
-                + "WHERE role = 'CAISSIER' ORDER BY id_user";
+                + "WHERE role IN ('CAISSIER', 'MANAGER') ORDER BY id_user";
 
         try {
             Connection con = DatabaseConnection.getConnection();
@@ -74,7 +76,9 @@ public class CompteDaoImpl implements CompteDaoInterface {
             while (rs.next()) {
                 int id = rs.getInt("id_user");
                 String email = rs.getString("email");
-                Compte c = new Compte(id, email, "", "gestionnaire");
+                String role = rs.getString("role");
+                String roleAffiche = "MANAGER".equalsIgnoreCase(role) ? "manager" : "caissier";
+                Compte c = new Compte(id, email, "", roleAffiche);
                 liste.add(c);
             }
 
@@ -92,12 +96,18 @@ public class CompteDaoImpl implements CompteDaoInterface {
     // ajouter un gestionnaire a partir d'un objet Compte
     @Override
     public boolean insertGestionnaire(Compte c) {
-        return insertGestionnaire(c.getUsername(), c.getPassword());
+        return insertGestionnaire(c.getUsername(), c.getPassword(), c.getRole());
     }
 
-    // ajouter un gestionnaire a partir de l'email et du mot de passe
+    // ajouter avec rôle par défaut (CAISSIER)
     @Override
     public boolean insertGestionnaire(String email, String password) {
+        return insertGestionnaire(email, password, "CAISSIER");
+    }
+
+    // ajouter avec rôle spécifié (CAISSIER ou MANAGER)
+    @Override
+    public boolean insertGestionnaire(String email, String password, String role) {
         
         String emailFinal;
         if (email.contains("@")) {
@@ -106,8 +116,10 @@ public class CompteDaoImpl implements CompteDaoInterface {
             emailFinal = email.trim().toLowerCase() + "@cinetrack.com";
         }
 
+        String roleDb = "MANAGER".equalsIgnoreCase(role) ? "MANAGER" : "CAISSIER";
+
         String sql = "INSERT INTO utilisateur (email, mot_de_passe, role) "
-                + "VALUES (?, crypt(?, gen_salt('bf')), 'CAISSIER')";
+                + "VALUES (?, crypt(?, gen_salt('bf')), ?::role_user)";
 
         boolean ok = false;
 
@@ -117,6 +129,7 @@ public class CompteDaoImpl implements CompteDaoInterface {
 
             ps.setString(1, emailFinal);
             ps.setString(2, password);
+            ps.setString(3, roleDb);
 
             int lignes = ps.executeUpdate();
             if (lignes > 0) {
@@ -133,10 +146,10 @@ public class CompteDaoImpl implements CompteDaoInterface {
         return ok;
     }
 
-    // supprimer un gestionnaire avec son id
+    // supprimer un personnel avec son id (sauf admin)
     @Override
     public boolean deleteGestionnaire(int id) {
-        String sql = "DELETE FROM utilisateur WHERE id_user = ? AND role = 'CAISSIER'";
+        String sql = "DELETE FROM utilisateur WHERE id_user = ? AND role != 'ADMINISTRATEUR'";
         boolean ok = false;
 
         try {
