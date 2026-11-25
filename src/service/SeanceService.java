@@ -2,36 +2,50 @@
 package service;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import dao.FilmDaoImpl;
+import dao.FilmDaoInterface;
 import dao.ReservationDaoImpl;
 import dao.ReservationDaoInterface;
 import dao.SeanceDaoImpl;
 import dao.SalleDaoImpl;
 import dao.SalleDaoInterface;
 import dao.SeanceDaoInterface;
+import exception.FilmIntrouvable;
 import exception.SalleErreur;
 import exception.ValidationException;
 import modele.Compte;
+import modele.Film;
 import modele.Reservation;
 import modele.Salle;
 import modele.Seance;
 
 /**
- * Service pour les séances et les réservations.
- * Vérifie les données avant de les envoyer aux DAO.
+ * Service pour les séances, les tarifs et les réservations.
+ * Regroupe toutes les règles métier avant d'appeler les DAO.
  */
 public class SeanceService {
+
+    private static final int PAUSE_NETTOYAGE_MINUTES = 15;
 
     private SeanceDaoInterface seanceDAO;
     private ReservationDaoInterface reservationDAO;
     private SalleDaoInterface salleDAO;
+    private FilmDaoInterface filmDAO;
 
     public SeanceService() {
         this.seanceDAO = new SeanceDaoImpl();
         this.reservationDAO = new ReservationDaoImpl();
         this.salleDAO = new SalleDaoImpl();
+        this.filmDAO = new FilmDaoImpl();
     }
 
     /** Retourne toutes les séances */
@@ -75,6 +89,7 @@ public class SeanceService {
             throws ValidationException, SalleErreur {
 
         Seance s = construireSeance(0, idFilmStr, idSalleStr, date, heure, placesStr);
+        verifierConflitHoraire(0, s.getIdFilm(), s.getIdSalle(), s.getDateSeance(), s.getHeure());
 
         if (!seanceDAO.insert(s)) {
             throw new ValidationException("Impossible d'ajouter la séance.");
@@ -109,6 +124,7 @@ public class SeanceService {
         }
 
         Seance s = construireSeance(idSeance, idFilmStr, idSalleStr, date, heure, placesStr);
+        verifierConflitHoraire(idSeance, s.getIdFilm(), s.getIdSalle(), s.getDateSeance(), s.getHeure());
 
         if (!seanceDAO.update(s)) {
             throw new ValidationException("Échec de la modification de la séance.");
@@ -127,6 +143,62 @@ public class SeanceService {
         return true;
     }
 
+    // ───── Règles métiers des Tarifs ──────────────────────────────────────
+
+    /** Retourne les tarifs (depuis la base, avec valeurs par défaut si besoin) */
+    public Map<String, Double> getTarifsMap() {
+        Map<String, Double> tarifs = reservationDAO.findAllTarifs();
+        if (tarifs == null || tarifs.isEmpty()) {
+            tarifs = new LinkedHashMap<>();
+            tarifs.put("NORMAL", 350.0);
+            tarifs.put("ETUDIANT", 250.0);
+            tarifs.put("ENFANT", 200.0);
+            tarifs.put("SENIOR", 250.0);
+        }
+        return tarifs;
+    }
+
+    /** Retourne la liste lisible des tarifs pour la ComboBox de l'interface */
+    public List<String> getTarifsAffichage() {
+        List<String> liste = new ArrayList<>();
+        Map<String, Double> tarifs = getTarifsMap();
+        for (Map.Entry<String, Double> entry : tarifs.entrySet()) {
+            liste.add(entry.getKey() + " - " + entry.getValue().intValue() + " Rs");
+        }
+        return liste;
+    }
+
+    /** Extrait le nom de la catégorie ("ETUDIANT") depuis "ETUDIANT - 250 Rs" */
+    public String extraireCategorieTarif(String texteChoisi) {
+        if (estVide(texteChoisi)) {
+            return "NORMAL";
+        }
+        String propre = texteChoisi.trim().toUpperCase();
+        if (propre.contains(" - ")) {
+            propre = propre.split(" - ")[0].trim();
+        }
+        if (getTarifsMap().containsKey(propre)) {
+            return propre;
+        }
+        return "NORMAL";
+    }
+
+    /** Calcule le montant total selon le tarif et le nombre de places */
+    public double calculerMontant(String categorieTarif, int nbPlaces) {
+        String cat = extraireCategorieTarif(categorieTarif);
+        double prix = getTarifsMap().getOrDefault(cat, 350.0);
+        return prix * nbPlaces;
+    }
+
+    // ───── Règles métiers des Réservations ────────────────────────────────
+
+    /** Valide que le nom et le prénom du client sont renseignés */
+    public void validerClient(String nom, String prenom) throws ValidationException {
+        if (estVide(nom) || estVide(prenom)) {
+            throw new ValidationException("Nom et prénom du client obligatoires.");
+        }
+    }
+
     /** Réserve des places pour un client (tarif par défaut NORMAL) */
     public boolean reserverPlaces(int idSeance, String nom, String prenom, String nbPlacesStr, Compte compteConnecte)
             throws ValidationException, SQLException {
@@ -140,9 +212,8 @@ public class SeanceService {
         if (idSeance <= 0) {
             throw new ValidationException("Séance invalide.");
         }
-        if (estVide(nom) || estVide(prenom)) {
-            throw new ValidationException("Nom et prénom du client obligatoires.");
-        }
+        validerClient(nom, prenom);
+
         if (estVide(nbPlacesStr)) {
             throw new ValidationException("Le nombre de places est obligatoire.");
         }
@@ -161,6 +232,9 @@ public class SeanceService {
             throw new ValidationException("Le nombre de places doit être supérieur à 0.");
         }
 
+        String categorie = extraireCategorieTarif(categorieTarif);
+        double montant = calculerMontant(categorie, nbPlaces);
+
         Reservation r = new Reservation(
                 idSeance,
                 nom.trim(),
@@ -168,7 +242,8 @@ public class SeanceService {
                 nbPlaces,
                 compteConnecte.getId(),
                 compteConnecte.getRole());
-        r.setCategorieTarif(categorieTarif != null ? categorieTarif : "NORMAL");
+        r.setCategorieTarif(categorie);
+        r.setMontantTotal(montant);
 
         return reservationDAO.insert(r);
     }
@@ -187,22 +262,30 @@ public class SeanceService {
         return reservationDAO.findPlacesOccupees(idSeance);
     }
 
-    /** Réserve des places précises choisies sur le plan de salle */
+    /** Réserve des places précises choisies sur le plan de salle (tarif par défaut NORMAL) */
     public boolean reserverPlacesChoisies(int idSeance, String nom, String prenom,
                                           List<String> places, Compte compteConnecte) throws ValidationException, SQLException {
+        return reserverPlacesChoisies(idSeance, nom, prenom, places, "NORMAL", compteConnecte);
+    }
+
+    /** Réserve des places précises choisies sur le plan de salle avec tarif */
+    public boolean reserverPlacesChoisies(int idSeance, String nom, String prenom,
+                                          List<String> places, String categorieTarif, Compte compteConnecte) throws ValidationException, SQLException {
 
         if (idSeance <= 0) {
             throw new ValidationException("Séance invalide.");
         }
-        if (estVide(nom) || estVide(prenom)) {
-            throw new ValidationException("Nom et prénom du client obligatoires.");
-        }
+        validerClient(nom, prenom);
+
         if (places == null || places.isEmpty()) {
             throw new ValidationException("Choisissez au moins une place sur le plan.");
         }
         if (compteConnecte == null) {
             throw new ValidationException("Utilisateur non identifié pour cette réservation.");
         }
+
+        String categorie = extraireCategorieTarif(categorieTarif);
+        double montant = calculerMontant(categorie, places.size());
 
         Reservation r = new Reservation(
                 idSeance,
@@ -211,6 +294,8 @@ public class SeanceService {
                 places.size(),
                 compteConnecte.getId(),
                 compteConnecte.getRole());
+        r.setCategorieTarif(categorie);
+        r.setMontantTotal(montant);
 
         return reservationDAO.insertAvecPlaces(r, places);
     }
@@ -261,17 +346,87 @@ public class SeanceService {
             throw new ValidationException("Le nombre de places doit être supérieur à 0.");
         }
 
+        // Vérifier que le film et la salle existent bien
+        try {
+            filmDAO.findById(idFilm);
+        } catch (FilmIntrouvable e) {
+            throw new ValidationException("Film #" + idFilm + " introuvable.");
+        }
+        if (salleDAO.findById(idSalle) == null) {
+            throw new ValidationException("Salle #" + idSalle + " introuvable.");
+        }
 
+        // Vérifier format de la date (AAAA-MM-JJ)
+        String dateTrim = date.trim();
+        try {
+            LocalDate.parse(dateTrim);
+        } catch (DateTimeParseException e) {
+            throw new ValidationException("Format de date invalide. Utilisez AAAA-MM-JJ (ex: 2026-11-25).");
+        }
+
+        // Vérifier format de l'heure (HH:MM ou HH:MM:SS)
         String heureTrim = heure.trim();
         if (heureTrim.length() == 5) {
             heureTrim = heureTrim + ":00";
         }
+        try {
+            LocalTime.parse(heureTrim);
+        } catch (DateTimeParseException e) {
+            throw new ValidationException("Format d'heure invalide. Utilisez HH:MM (ex: 14:30).");
+        }
 
         // idSeance > 0 : modification (la séance a déjà un id), sinon : ajout
         if (idSeance > 0) {
-            return new Seance(idSeance, idFilm, idSalle, date.trim(), heureTrim, places);
+            return new Seance(idSeance, idFilm, idSalle, dateTrim, heureTrim, places);
         } else {
-            return new Seance(idFilm, idSalle, date.trim(), heureTrim, places);
+            return new Seance(idFilm, idSalle, dateTrim, heureTrim, places);
         }
+    }
+
+    /**
+     * Règle métier : détecte si une séance entre en conflit d'horaire
+     * avec une autre séance déjà programmée dans la même salle le même jour.
+     */
+    private void verifierConflitHoraire(int idSeanceActuelle, int idFilm, int idSalle,
+                                        String date, String heureDebut) throws SalleErreur {
+        int debutNouveau = heureEnMinutes(heureDebut);
+        int dureeNouveau = getDureeFilm(idFilm) + PAUSE_NETTOYAGE_MINUTES;
+        int finNouveau = debutNouveau + dureeNouveau;
+
+        List<Seance> existantes = seanceDAO.findAll();
+        for (Seance s : existantes) {
+            // Ignorer la séance qu'on est en train de modifier
+            if (s.getIdSeance() == idSeanceActuelle) {
+                continue;
+            }
+            if (s.getIdSalle() == idSalle && date.equals(s.getDateSeance())) {
+                int debutExistant = heureEnMinutes(s.getHeure());
+                int dureeExistante = getDureeFilm(s.getIdFilm()) + PAUSE_NETTOYAGE_MINUTES;
+                int finExistante = debutExistant + dureeExistante;
+
+                // Chevauchement des deux créneaux horaires
+                if (debutNouveau < finExistante && finNouveau > debutExistant) {
+                    throw new SalleErreur(idSalle, date + " à " + s.getHeure());
+                }
+            }
+        }
+    }
+
+    private int getDureeFilm(int idFilm) {
+        try {
+            Film f = filmDAO.findById(idFilm);
+            return f.getDuree();
+        } catch (Exception e) {
+            return 120; // durée par défaut si non trouvée
+        }
+    }
+
+    private int heureEnMinutes(String heure) {
+        String h = heure.trim();
+        if (h.length() == 5) {
+            h = h + ":00";
+        }
+        LocalTime t = LocalTime.parse(h);
+        return t.getHour() * 60 + t.getMinute();
     }
 }

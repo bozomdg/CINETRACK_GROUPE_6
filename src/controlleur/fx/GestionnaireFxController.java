@@ -76,11 +76,6 @@ public class GestionnaireFxController implements Initializable {
         String password = champPassword.getText();
         String role = comboRole.getValue();
 
-        if (username.isEmpty() || password.isEmpty()) {
-            afficherMessage("Identifiant et mot de passe obligatoires.", true);
-            return;
-        }
-
         try {
             compteService.ajouterGestionnaire(username, password, role);
             afficherMessage("✔ Compte '" + username + "' (" + role + ") ajouté.", false);
@@ -98,12 +93,6 @@ public class GestionnaireFxController implements Initializable {
         Compte selectionne = tableGestionnaires.getSelectionModel().getSelectedItem();
         if (selectionne == null) {
             afficherMessage("Sélectionnez un gestionnaire dans le tableau.", true);
-            return;
-        }
-
-        // Empêcher la suppression de l'admin
-        if ("admin".equalsIgnoreCase(selectionne.getRole())) {
-            afficherMessage("Impossible de supprimer le compte admin.", true);
             return;
         }
 

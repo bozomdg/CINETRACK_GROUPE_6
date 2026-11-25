@@ -94,6 +94,25 @@ public class CompteDaoImpl implements CompteDaoInterface {
         return liste;
     }
 
+    // recuperer le role d'un utilisateur par son id
+    @Override
+    public String findRoleById(int id) {
+        String sql = "SELECT role::text FROM utilisateur WHERE id_user = ? AND is_deleted = FALSE";
+
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getString("role");
+            }
+        } catch (SQLException e) {
+            System.out.println("Erreur findRoleById : " + e.getMessage());
+        }
+        return null;
+    }
+
     // ajouter un gestionnaire a partir d'un objet Compte
     @Override
     public boolean insertGestionnaire(Compte c) {

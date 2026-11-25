@@ -12,6 +12,8 @@ public interface CompteDaoInterface {
 
     List<Compte> findAllGestionnaires();
 
+    String findRoleById(int id);
+
     boolean insertGestionnaire(Compte c);
 
     boolean insertGestionnaire(String usernameOrEmail, String password);

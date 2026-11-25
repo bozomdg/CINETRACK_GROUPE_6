@@ -44,48 +44,52 @@ public class SalleService {
     }
 
     public boolean ajouterSalle(String nom, String capaciteStr) throws ValidationException {
-        if (nom == null || nom.trim().isEmpty()) {
-            throw new ValidationException("Le nom de la salle est obligatoire.");
-        }
-        int capacite;
-        try {
-            capacite = Integer.parseInt(capaciteStr.trim());
-            if (capacite <= 0) {
-                throw new ValidationException("La capacité de la salle doit être supérieure à 0.");
-            }
-        } catch (NumberFormatException e) {
-            throw new ValidationException("La capacité doit être un nombre entier valide.");
-        }
+        int capacite = validerDonneesSalle(nom, capaciteStr);
 
         Salle s = new Salle(nom.trim(), capacite, "Standard");
-        return salleDAO.insert(s);
+        if (!salleDAO.insert(s)) {
+            throw new ValidationException("Impossible d'ajouter la salle (nom peut-être déjà utilisé).");
+        }
+        return true;
     }
 
     public boolean modifierSalle(int id, String nom, String capaciteStr) throws ValidationException {
         if (id <= 0) {
             throw new ValidationException("Identifiant de salle invalide.");
         }
-        if (nom == null || nom.trim().isEmpty()) {
-            throw new ValidationException("Le nom de la salle est obligatoire.");
-        }
-        int capacite;
-        try {
-            capacite = Integer.parseInt(capaciteStr.trim());
-            if (capacite <= 0) {
-                throw new ValidationException("La capacité doit être supérieure à 0.");
-            }
-        } catch (NumberFormatException e) {
-            throw new ValidationException("La capacité doit être un nombre valide.");
-        }
+        int capacite = validerDonneesSalle(nom, capaciteStr);
 
         Salle s = new Salle(id, nom.trim(), capacite, "Standard");
-        return salleDAO.update(s);
+        if (!salleDAO.update(s)) {
+            throw new ValidationException("Impossible de modifier la salle.");
+        }
+        return true;
     }
 
     public boolean supprimerSalle(int id) throws ValidationException {
         if (id <= 0) {
             throw new ValidationException("Identifiant de salle invalide.");
         }
-        return salleDAO.delete(id);
+        if (!salleDAO.delete(id)) {
+            throw new ValidationException("Impossible de supprimer la salle.");
+        }
+        return true;
+    }
+
+    /** Vérifie le nom et convertit la capacité en entier positif */
+    private int validerDonneesSalle(String nom, String capaciteStr) throws ValidationException {
+        if (nom == null || nom.trim().isEmpty() || capaciteStr == null || capaciteStr.trim().isEmpty()) {
+            throw new ValidationException("Le nom et la capacité de la salle sont obligatoires.");
+        }
+        int capacite;
+        try {
+            capacite = Integer.parseInt(capaciteStr.trim());
+        } catch (NumberFormatException e) {
+            throw new ValidationException("La capacité doit être un nombre entier valide.");
+        }
+        if (capacite <= 0) {
+            throw new ValidationException("La capacité de la salle doit être supérieure à 0.");
+        }
+        return capacite;
     }
 }

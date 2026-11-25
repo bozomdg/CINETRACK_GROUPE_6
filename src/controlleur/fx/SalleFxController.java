@@ -92,11 +92,6 @@ public class SalleFxController implements Initializable {
         String nom = champNom.getText().trim();
         String capacite = champCapacite.getText().trim();
 
-        if (nom.isEmpty() || capacite.isEmpty()) {
-            afficherMessage("Tous les champs sont obligatoires.", true);
-            return;
-        }
-
         try {
             serviceSalle.ajouterSalle(nom, capacite);
             viderFormulaire();
@@ -116,11 +111,6 @@ public class SalleFxController implements Initializable {
 
         String nom = champNom.getText().trim();
         String capacite = champCapacite.getText().trim();
-
-        if (nom.isEmpty() || capacite.isEmpty()) {
-            afficherMessage("Tous les champs sont obligatoires.", true);
-            return;
-        }
 
         try {
             serviceSalle.modifierSalle(idSalleSelectionnee, nom, capacite);

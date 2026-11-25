@@ -67,15 +67,24 @@ public class CompteService {
      */
     public boolean ajouterGestionnaire(String username, String password, String role) throws ValidationException {
         if (username == null || username.trim().isEmpty() || password == null || password.trim().isEmpty()) {
-            throw new ValidationException("Veuillez remplir tous les champs.");
+            throw new ValidationException("Identifiant et mot de passe obligatoires.");
         }
 
-        if (username.trim().length() < 3) {
+        String login = username.trim();
+        if (login.length() < 3) {
             throw new ValidationException("Le nom d'utilisateur doit contenir au moins 3 caractères.");
         }
 
+        // Règle métier : si l'utilisateur saisit juste un pseudo, on complète avec @cinetrack.com
+        String emailFinal;
+        if (login.contains("@")) {
+            emailFinal = login;
+        } else {
+            emailFinal = login.toLowerCase() + "@cinetrack.com";
+        }
+
         String roleFinal = ("manager".equalsIgnoreCase(role)) ? "manager" : "caissier";
-        Compte nouveau = new Compte(0, username.trim(), password.trim(), roleFinal);
+        Compte nouveau = new Compte(0, emailFinal, password.trim(), roleFinal);
         boolean succes = compteDAO.insertGestionnaire(nouveau);
         if (!succes) {
             throw new ValidationException("Erreur lors de l'ajout (nom potentiellement déjà pris).");
@@ -85,10 +94,16 @@ public class CompteService {
 
     /**
      * Supprime un gestionnaire par son identifiant.
+     * Règle métier : il est interdit de supprimer un compte ADMINISTRATEUR.
      */
     public boolean supprimerGestionnaire(int idGestionnaire) throws ValidationException {
         if (idGestionnaire <= 0) {
             throw new ValidationException("Identifiant de gestionnaire invalide.");
+        }
+
+        String role = compteDAO.findRoleById(idGestionnaire);
+        if ("ADMINISTRATEUR".equalsIgnoreCase(role)) {
+            throw new ValidationException("Impossible de supprimer un compte Administrateur.");
         }
 
         boolean succes = compteDAO.deleteGestionnaire(idGestionnaire);

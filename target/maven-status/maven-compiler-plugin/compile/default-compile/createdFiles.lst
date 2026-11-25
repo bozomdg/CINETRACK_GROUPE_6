@@ -2,6 +2,7 @@ controlleur\GestionComptesControleur$1.class
 dao\LogGestionnaireDaoImpl.class
 dao\FilmDaoImpl.class
 exception\NoteErreur.class
+controlleur\fx\PlanSalleDialog.class
 dao\CompteDaoImpl.class
 modele\Film.class
 controlleur\fx\SalleFxController.class

@@ -103,13 +103,10 @@ public class SeanceFxController implements Initializable {
             }
         });
 
-        // Remplir le ComboBox des tarifs
+        // Remplir le ComboBox des tarifs depuis le service métier
         if (comboTarif != null) {
             comboTarif.setItems(FXCollections.observableArrayList(
-                    "NORMAL - 350 Rs",
-                    "ETUDIANT - 250 Rs",
-                    "ENFANT - 200 Rs",
-                    "SENIOR - 250 Rs"
+                    seanceService.getTarifsAffichage()
             ));
             comboTarif.getSelectionModel().selectFirst();
         }
@@ -247,8 +244,7 @@ public class SeanceFxController implements Initializable {
         String nom = champNomClient.getText().trim();
         String prenom = champPrenomClient.getText().trim();
         String nbPlaces = champNbPlaces.getText().trim();
-        String categorieTarif = getCategorieTarif();
-        int prixUnitaire = getPrixTarif();
+        String choixTarif = (comboTarif != null) ? comboTarif.getValue() : null;
 
         if (compteConnecte == null) {
             compteConnecte = new modele.Compte(1, "gestionnaire", "", "gestionnaire");
@@ -256,23 +252,21 @@ public class SeanceFxController implements Initializable {
 
         try {
             boolean succes = seanceService.reserverPlaces(
-                    idSeanceSelectionne, nom, prenom, nbPlaces, compteConnecte
+                    idSeanceSelectionne, nom, prenom, nbPlaces, choixTarif, compteConnecte
             );
-            // Si ton SeanceService accepte aussi le tarif en paramètre, remplace l'appel ci-dessus par :
-            // boolean succes = seanceService.reserverPlaces(idSeanceSelectionne, nom, prenom, nbPlaces, categorieTarif, compteConnecte);
 
             if (succes) {
-                int nb = Integer.parseInt(nbPlaces);
-                int total = nb * prixUnitaire;
+                String categorie = seanceService.extraireCategorieTarif(choixTarif);
+                double total = seanceService.calculerMontant(categorie, Integer.parseInt(nbPlaces));
                 afficherMessage("✔ Réservation effectuée pour " + prenom + " " + nom
-                        + " (" + categorieTarif + " - Total : " + total + " Rs) !", false);
+                        + " (" + categorie + " - Total : " + (int) total + " Rs) !", false);
                 champNomClient.clear();
                 champPrenomClient.clear();
                 champNbPlaces.clear();
                 if (comboTarif != null) {
                     comboTarif.getSelectionModel().selectFirst();
                 }
-                chargerSeances(); // Met à jour le nombre de places restantes
+                chargerSeances();
             } else {
                 afficherMessage("Échec de la réservation.", true);
             }
@@ -291,17 +285,15 @@ public class SeanceFxController implements Initializable {
         }
         String nom = champNomClient.getText().trim();
         String prenom = champPrenomClient.getText().trim();
-        if (nom.isEmpty() || prenom.isEmpty()) {
-            afficherMessage("Renseignez le nom et le prénom du client avant de choisir les places.", true);
-            return;
-        }
-        String categorieTarif = getCategorieTarif();
-        int prixUnitaire = getPrixTarif();
+        String choixTarif = (comboTarif != null) ? comboTarif.getValue() : null;
 
         if (compteConnecte == null) {
             compteConnecte = new modele.Compte(1, "gestionnaire", "", "gestionnaire");
         }
         try {
+            // Validation métier du client avant d'ouvrir le plan
+            seanceService.validerClient(nom, prenom);
+
             int capacite = seanceService.getCapaciteSalle(s.getIdSalle());
             Set<String> occupees = seanceService.getPlacesOccupees(s.getIdSeance());
             String titre = "Séance #" + s.getIdSeance() + " — " + s.getDateSeance() + " à " + s.getHeure();
@@ -311,12 +303,13 @@ public class SeanceFxController implements Initializable {
                 return; // annulé
             }
             boolean succes = seanceService.reserverPlacesChoisies(
-                    s.getIdSeance(), nom, prenom, choix, compteConnecte);
+                    s.getIdSeance(), nom, prenom, choix, choixTarif, compteConnecte);
             if (succes) {
-                int total = choix.size() * prixUnitaire;
+                String categorie = seanceService.extraireCategorieTarif(choixTarif);
+                double total = seanceService.calculerMontant(categorie, choix.size());
                 afficherMessage("✔ Places " + String.join(", ", choix)
                         + " réservées pour " + prenom + " " + nom
-                        + " (" + categorieTarif + " - Total : " + total + " Rs) !", false);
+                        + " (" + categorie + " - Total : " + (int) total + " Rs) !", false);
                 champNomClient.clear();
                 champPrenomClient.clear();
                 champNbPlaces.clear();
@@ -349,13 +342,16 @@ public class SeanceFxController implements Initializable {
                 return;
             }
             StringBuilder sb = new StringBuilder();
-            sb.append(String.format("%-6s | %-20s | %-8s\n", "ID Res", "Client", "Places"));
-            sb.append("------------------------------------------\n");
+            sb.append(String.format("%-6s | %-20s | %-6s | %-10s | %-10s\n",
+                    "ID Res", "Client", "Places", "Tarif", "Montant"));
+            sb.append("----------------------------------------------------------------\n");
             for (modele.Reservation r : reservations) {
-                sb.append(String.format("#%-5d | %-20s | %-8d\n",
+                sb.append(String.format("#%-5d | %-20s | %-6d | %-10s | %.0f Rs\n",
                         r.getIdReservation(),
                         r.getPrenomClient() + " " + r.getNomClient(),
-                        r.getNbPlaces()));
+                        r.getNbPlaces(),
+                        r.getCategorieTarif(),
+                        r.getMontantTotal()));
             }
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Réservations - Séance #" + idSeanceSelectionne);
@@ -372,23 +368,6 @@ public class SeanceFxController implements Initializable {
     }
 
     // ───── Utilitaires ────────────────────────────────────────────────────
-    /** Retourne la catégorie du tarif sélectionné (ex: "NORMAL") */
-    private String getCategorieTarif() {
-        if (comboTarif == null || comboTarif.getValue() == null) {
-            return "NORMAL";
-        }
-        return comboTarif.getValue().split(" - ")[0].trim();
-    }
-
-    /** Retourne le prix unitaire en Rs selon le tarif sélectionné */
-    private int getPrixTarif() {
-        return switch (getCategorieTarif()) {
-            case "ETUDIANT", "SENIOR" -> 250;
-            case "ENFANT" -> 200;
-            default -> 350; // NORMAL
-        };
-    }
-
     private void viderFormulaire() {
         idSeanceSelectionne = -1;
         placesDispoSelectionnee = 0;

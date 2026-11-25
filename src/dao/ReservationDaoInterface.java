@@ -3,6 +3,7 @@ package dao;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import modele.Reservation;
 
@@ -14,6 +15,8 @@ public interface ReservationDaoInterface {
     List<Reservation> findBySeance(int idSeance);
 
     List<Reservation> findAll();
+
+    Map<String, Double> findAllTarifs();
 
     boolean insert(Reservation r) throws SQLException;
 

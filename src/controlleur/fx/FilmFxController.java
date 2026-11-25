@@ -130,11 +130,6 @@ public class FilmFxController implements Initializable {
         String duree = champDuree.getText().trim();
         String synopsis = champSynopsis.getText().trim();
 
-        if (titre.isEmpty() || genre == null || duree.isEmpty()) {
-            afficherMessage("Titre, genre et durée sont obligatoires.", true);
-            return;
-        }
-
         try {
             serviceFilm.ajouterFilm(titre, genre, duree, synopsis);
 
@@ -158,11 +153,6 @@ public class FilmFxController implements Initializable {
         String genre = comboGenre.getValue();
         String duree = champDuree.getText().trim();
         String synopsis = champSynopsis.getText().trim();
-
-        if (titre.isEmpty() || genre == null || duree.isEmpty()) {
-            afficherMessage("Titre, genre et durée sont obligatoires.", true);
-            return;
-        }
 
         try {
             serviceFilm.modifierFilm(idFilmSelectionne, titre, genre, duree, synopsis);

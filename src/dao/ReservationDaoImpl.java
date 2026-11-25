@@ -8,7 +8,9 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import connexion.DatabaseConnection;
@@ -24,9 +26,10 @@ public class ReservationDaoImpl implements ReservationDaoInterface {
     public List<Reservation> findBySeance(int idSeance) {
         List<Reservation> liste = new ArrayList<>();
         String sql = "SELECT r.id_reservation, r.id_seance, c.nom_client, c.prenom AS prenom_client, "
-                + "r.nb_place AS nb_places, r.id_client "
+                + "r.nb_place AS nb_places, t.categorie::text AS cat_tarif, (r.nb_place * t.prix) AS montant, r.id_client "
                 + "FROM reservation r "
                 + "JOIN client c ON r.id_client = c.id_client "
+                + "JOIN tarif t ON r.id_tarif = t.id_tarif "
                 + "WHERE r.id_seance = ? "
                 + "ORDER BY r.id_reservation DESC";
 
@@ -46,6 +49,8 @@ public class ReservationDaoImpl implements ReservationDaoInterface {
                         new Timestamp(System.currentTimeMillis()),
                         rs.getInt("id_client"),
                         "client");
+                r.setCategorieTarif(rs.getString("cat_tarif"));
+                r.setMontantTotal(rs.getDouble("montant"));
                 liste.add(r);
             }
 
@@ -60,9 +65,10 @@ public class ReservationDaoImpl implements ReservationDaoInterface {
     public List<Reservation> findAll() {
         List<Reservation> liste = new ArrayList<>();
         String sql = "SELECT r.id_reservation, r.id_seance, c.nom_client, c.prenom AS prenom_client, "
-                + "r.nb_place AS nb_places, r.id_client "
+                + "r.nb_place AS nb_places, t.categorie::text AS cat_tarif, (r.nb_place * t.prix) AS montant, r.id_client "
                 + "FROM reservation r "
                 + "JOIN client c ON r.id_client = c.id_client "
+                + "JOIN tarif t ON r.id_tarif = t.id_tarif "
                 + "ORDER BY r.id_reservation DESC";
 
         try (Connection con = DatabaseConnection.getConnection();
@@ -80,6 +86,8 @@ public class ReservationDaoImpl implements ReservationDaoInterface {
                         new Timestamp(System.currentTimeMillis()),
                         rs.getInt("id_client"),
                         "client");
+                r.setCategorieTarif(rs.getString("cat_tarif"));
+                r.setMontantTotal(rs.getDouble("montant"));
                 liste.add(r);
             }
 
@@ -87,6 +95,50 @@ public class ReservationDaoImpl implements ReservationDaoInterface {
             System.err.println("Erreur findAll : " + e.getMessage());
         }
         return liste;
+    }
+
+    /** Retourne tous les tarifs disponibles en base (catégorie -> prix) */
+    @Override
+    public Map<String, Double> findAllTarifs() {
+        Map<String, Double> tarifs = new LinkedHashMap<>();
+        String sql = "SELECT categorie::text AS cat, prix FROM tarif ORDER BY id_tarif";
+
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                tarifs.put(rs.getString("cat"), rs.getDouble("prix"));
+            }
+        } catch (SQLException e) {
+            System.err.println("Erreur findAllTarifs : " + e.getMessage());
+        }
+        return tarifs;
+    }
+
+    /** Recherche l'id du tarif correspondant à une catégorie */
+    private int chercherIdTarif(Connection con, String categorieTarif) throws SQLException {
+        String cat = (categorieTarif != null && !categorieTarif.isBlank())
+                ? categorieTarif.trim().toUpperCase()
+                : "NORMAL";
+
+        String sql = "SELECT id_tarif FROM tarif WHERE categorie = ?::categorie_tarif";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, cat);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("id_tarif");
+            }
+        }
+
+        // Si introuvable, on prend le premier tarif disponible
+        try (PreparedStatement psFallback = con.prepareStatement("SELECT id_tarif FROM tarif ORDER BY id_tarif LIMIT 1");
+             ResultSet rsFallback = psFallback.executeQuery()) {
+            if (rsFallback.next()) {
+                return rsFallback.getInt("id_tarif");
+            }
+        }
+        return 1;
     }
 
     /** Ajoute une réservation */
@@ -133,14 +185,8 @@ public class ReservationDaoImpl implements ReservationDaoInterface {
                 ps3.close();
             }
 
-            // 4. Chercher un tarif (1 par défaut)
-            int idTarif = 1;
-            PreparedStatement ps4 = con.prepareStatement("SELECT id_tarif FROM tarif LIMIT 1");
-            ResultSet rs4 = ps4.executeQuery();
-            if (rs4.next()) {
-                idTarif = rs4.getInt("id_tarif");
-            }
-            ps4.close();
+            // 4. Chercher le tarif correspondant à la catégorie choisie
+            int idTarif = chercherIdTarif(con, r.getCategorieTarif());
 
             // 5. Enregistrer la réservation
             String sqlReservation = "INSERT INTO reservation (nb_place, statut, id_client, id_seance, id_tarif) "
@@ -221,14 +267,8 @@ public class ReservationDaoImpl implements ReservationDaoInterface {
                     ps3.close();
                 }
 
-                // 3. Tarif par défaut
-                int idTarif = 1;
-                PreparedStatement ps4 = con.prepareStatement("SELECT id_tarif FROM tarif LIMIT 1");
-                ResultSet rs4 = ps4.executeQuery();
-                if (rs4.next()) {
-                    idTarif = rs4.getInt("id_tarif");
-                }
-                ps4.close();
+                // 3. Chercher le tarif correspondant à la catégorie choisie
+                int idTarif = chercherIdTarif(con, r.getCategorieTarif());
 
                 // 4. Enregistrer la réservation et récupérer son id
                 int idReservation = -1;

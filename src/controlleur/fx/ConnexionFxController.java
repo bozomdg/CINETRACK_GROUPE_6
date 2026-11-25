@@ -55,13 +55,7 @@ public class ConnexionFxController implements Initializable {
         String username = fieldUsername.getText().trim();
         String password = fieldPassword.getText();
 
-        // Validation : champs obligatoires
-        if (username.isEmpty() || password.isEmpty()) {
-            labelErreur.setText("Champs obligatoires.");
-            return;
-        }
-
-        // Tentative d'authentification via le service
+        // Tentative d'authentification et validation via le service
         try {
             Compte compte = compteService.authentifier(username, password);
             // Connexion réussie → ouvrir la fenêtre principale
