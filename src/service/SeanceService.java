@@ -47,7 +47,30 @@ public class SeanceService {
         return seanceDAO.findByDate(date.trim());
     }
 
-    /** Ajoute une séance */
+    /** Ajoute une séance (les places sont calculées automatiquement selon la capacité de la salle) */
+    public boolean ajouterSeance(String idFilmStr, String idSalleStr, String date, String heure)
+            throws ValidationException, SalleErreur {
+
+        if (estVide(idSalleStr)) {
+            throw new ValidationException("L'ID de la salle est obligatoire.");
+        }
+
+        int idSalle;
+        try {
+            idSalle = Integer.parseInt(idSalleStr.trim());
+        } catch (NumberFormatException e) {
+            throw new ValidationException("L'ID de la salle doit être un nombre entier.");
+        }
+
+        int places = getCapaciteSalle(idSalle);
+        if (places <= 0) {
+            throw new ValidationException("Salle introuvable ou capacité nulle.");
+        }
+
+        return ajouterSeance(idFilmStr, idSalleStr, date, heure, String.valueOf(places));
+    }
+
+    /** Ajoute une séance avec un nombre de places explicite */
     public boolean ajouterSeance(String idFilmStr, String idSalleStr, String date, String heure, String placesStr)
             throws ValidationException, SalleErreur {
 
@@ -57,6 +80,24 @@ public class SeanceService {
             throw new ValidationException("Impossible d'ajouter la séance.");
         }
         return true;
+    }
+
+    /** Modifie une séance en conservant les places disponibles existantes */
+    public boolean modifierSeance(int idSeance, String idFilmStr, String idSalleStr, String date, String heure, int placesActuelles)
+            throws ValidationException, SalleErreur {
+
+        int places = placesActuelles;
+        if (places <= 0 && !estVide(idSalleStr)) {
+            try {
+                int idSalle = Integer.parseInt(idSalleStr.trim());
+                places = getCapaciteSalle(idSalle);
+            } catch (Exception ignored) {}
+        }
+        if (places <= 0) {
+            places = 1;
+        }
+
+        return modifierSeance(idSeance, idFilmStr, idSalleStr, date, heure, String.valueOf(places));
     }
 
     /** Modifie une séance */

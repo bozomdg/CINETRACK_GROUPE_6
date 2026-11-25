@@ -215,3 +215,9 @@ CREATE TABLE IF NOT EXISTS place_reservee (
 );
 
 CREATE INDEX IF NOT EXISTS idx_place_seance ON place_reservee(id_seance);
+ALTER TYPE role_user ADD VALUE IF NOT EXISTS 'MANAGER';
+
+-- 3. Insérer un manager de test
+INSERT INTO utilisateur (email, mot_de_passe, role)
+VALUES ('manager@cinetrack.com', crypt('manager123', gen_salt('bf')), 'MANAGER')
+ON CONFLICT (email) DO NOTHING;

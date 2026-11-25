@@ -64,12 +64,12 @@
                        onMouseClicked="#handleSelectionSeance">
                 <columns>
                     <TableColumn fx:id="colIdSeance"    text="ID"       prefWidth="50"/>
-                    <TableColumn fx:id="colIdFilm"      text="Film ID"  prefWidth="80"/>
-                    <TableColumn fx:id="colIdSalle"     text="Salle ID" prefWidth="80"/>
-                    <TableColumn fx:id="colDate"        text="Date"     prefWidth="120"/>
-                    <TableColumn fx:id="colHeure"       text="Heure"    prefWidth="90"/>
-                    <TableColumn fx:id="colPlaces"      text="Places"   prefWidth="80"/>
-                    <TableColumn fx:id="colStatut"      text="Statut"   prefWidth="100"/>
+                    <TableColumn fx:id="colIdFilm"      text="Film ID"  prefWidth="75"/>
+                    <TableColumn fx:id="colIdSalle"     text="Salle ID" prefWidth="75"/>
+                    <TableColumn fx:id="colDate"        text="Date"     prefWidth="110"/>
+                    <TableColumn fx:id="colHeure"       text="Heure"    prefWidth="85"/>
+                    <TableColumn fx:id="colPlaces"      text="Places"   prefWidth="75"/>
+                    <TableColumn fx:id="colStatut"      text="Statut des places" prefWidth="140"/>
                 </columns>
                 <placeholder>
                     <Label text="Aucune séance trouvée." styleClass="label-muted"/>
@@ -108,11 +108,6 @@
                 <Label text="Heure (HH:MM) *" styleClass="label-champ"/>
                 <TextField fx:id="champHeure"
                            promptText="14:30"
-                           styleClass="text-field-modern"/>
-
-                <Label text="Places disponibles *" styleClass="label-champ"/>
-                <TextField fx:id="champPlaces"
-                           promptText="Ex: 120"
                            styleClass="text-field-modern"/>
 
                 <Label fx:id="labelMessage"

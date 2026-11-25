@@ -31,7 +31,7 @@ public class Main {
             );
 
             // Configuration et affichage de la fenêtre
-            stagePrincipal.setTitle("CinéTrack — Authentification");
+            stagePrincipal.setTitle("CinéTrack: Authentification");
             stagePrincipal.setScene(scene);
             stagePrincipal.setResizable(false);
             stagePrincipal.show();
